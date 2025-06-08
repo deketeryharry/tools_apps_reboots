@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 
 async function getKeywordSearchCount(keyword: string) {
   const API_KEY = process.env.NAVER_AD_API_KEY!;
@@ -180,9 +180,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'No keyword provided' });
     }
     const [keywordAmountRaw, keywordAmount10Raw] = await getKeywordSearchCount(keyword);
+    console.log('NAVER_AD_API 응답:', keywordAmountRaw, keywordAmount10Raw);
     const docsAmountRaw = await getDocsCount(keyword);
+    console.log('NAVER_BLOG_API 응답:', docsAmountRaw);
     const blogPC10Raw = await getBlogPC10(keyword);
+    console.log('NAVER_BLOG_PC10 응답:', blogPC10Raw);
     const datalab30Raw = await getDatalabData(keyword);
+    console.log('NAVER_DATALAB 응답:', datalab30Raw);
     const vwjsPCRaw = await getTabOrderPC(keyword);
     const vwjsMORaw = await getTabOrderMO(keyword);
     const keywordAmount = keywordAmountRaw || {};
@@ -199,6 +203,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const vwjsPC = vwjsPCRaw || {};
     const vwjsMO = vwjsMORaw || {};
     res.json({
+      debug: {
+        keywordAmountRaw,
+        keywordAmount10Raw,
+        docsAmountRaw,
+        blogPC10Raw,
+        datalab30Raw
+      },
       keyword_amount: {
         relKeyword,
         monthlyPcQcCnt,
@@ -213,6 +224,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       datalab_30: datalab30
     });
   } catch (error: any) {
-    res.status(500).json({ error: error.message || 'An unexpected error occurred.' });
+    console.error('API ERROR:', error);
+    res.status(500).json({ error: error.message || 'An unexpected error occurred.', debug: error });
   }
 } 
