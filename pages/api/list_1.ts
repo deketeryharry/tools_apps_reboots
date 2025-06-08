@@ -224,7 +224,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       datalab_30: datalab30
     });
   } catch (error: any) {
-    console.error('API ERROR:', error);
+    if (axios.isAxiosError(error)) {
+      console.error('NAVER API ERROR:', error.response?.data || error.message);
+      return res.status(500).json({ error: error.message, naver: error.response?.data });
+    }
     res.status(500).json({ error: error.message || 'An unexpected error occurred.', debug: error });
   }
 } 

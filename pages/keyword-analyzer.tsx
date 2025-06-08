@@ -223,19 +223,26 @@ export default function KeywordAnalyzer() {
         </div>
         <div style={{ flex: 1, background: 'var(--background)', borderRadius: 12, boxShadow: '0 2px 12px rgba(49, 130, 246, 0.06)', padding: '16px 10px 10px 10px', marginBottom: 18, color: 'var(--foreground)' }}>
           <h5 style={{ color: '#3182f6', fontSize: '1rem', fontWeight: 700, marginBottom: 10 }}>날짜 및 조회량</h5>
-          <table style={{ width: '100%' }} border={1}>
-            <tbody>
-              {ratioRows.map((row, idx) => (
-                <tr key={idx}>
-                  <td>{row.period}</td>
-                  <td>{row.dailyAmount.toLocaleString()}</td>
-                  <td>
-                    <meter min="0" max="100" value={row.ratio} low={40} high={70} optimum={80}></meter>
-                  </td>
+          {ratioRows.length > 0 ? (
+            <table style={{ width: '100%' }} border={1}>
+              <thead>
+                <tr>
+                  <td>날짜</td>
+                  <td>조회량(비율)</td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {ratioRows.map((row, idx) => (
+                  <tr key={idx}>
+                    <td>{row.period}</td>
+                    <td>{row.dailyAmount.toLocaleString()} ({row.ratio.toFixed(2)})</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div style={{ color: '#8b95a1', fontSize: '0.98rem' }}>데이터 없음</div>
+          )}
         </div>
         <div style={{ flex: 1, background: 'var(--background)', borderRadius: 12, boxShadow: '0 2px 12px rgba(49, 130, 246, 0.06)', padding: '16px 10px 10px 10px', marginBottom: 18, color: 'var(--foreground)' }}>
           <h5 style={{ color: '#3182f6', fontSize: '1rem', fontWeight: 700, marginBottom: 10 }}>관련 키워드</h5>
