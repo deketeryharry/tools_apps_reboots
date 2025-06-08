@@ -46,7 +46,7 @@ function parseSearchCount(value: string | number): number {
   return isNaN(num) ? 0 : num;
 }
 
-export default function KeywordAnalyzer() {
+const KeywordAnalyzer = () => {
   const [keyword, setKeyword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [keywordRows, setKeywordRows] = useState<KeywordRow[]>([]);
@@ -246,27 +246,48 @@ export default function KeywordAnalyzer() {
                 </tbody>
               </table>
             </div>
+
+            {/* 블로그 테이블 */}
+            <table className={styles.blog_table} border={2}>
+              <thead>
+                <tr>
+                  <td colSpan={4}>조회 키워드의 상위10 블로그</td>
+                </tr>
+                <tr>
+                  <td style={{ width: '20%' }}>블로그명</td>
+                  <td style={{ width: '8%' }}>출처</td>
+                  <td style={{ width: '52%' }}>제목</td>
+                  <td style={{ width: '15%' }}>발행일</td>
+                </tr>
+              </thead>
+              <tbody>
+                {blogRows.map((row, idx) => (
+                  <tr key={idx}>
+                    <td>
+                      <a href={row.블로그링크} target="_blank" rel="noopener noreferrer">
+                        {row.블로그이름}
+                      </a>
+                    </td>
+                    <td>{row.블로그타입}</td>
+                    <td>{row.블로그제목}</td>
+                    <td>{row.발행날짜}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
 
           {/* 두 번째 컬럼: 날짜 및 조회량 */}
           <div className={styles.second_column}>
             <h5>날짜 및 조회량</h5>
-            <table className={styles.ratio_table} border={2}>
-              <thead>
-                <tr>
-                  <td>날짜</td>
-                  <td>조회량</td>
-                  <td>비율</td>
-                </tr>
-              </thead>
+            <table className={styles.ratio_table} border={1}>
               <tbody>
                 {ratioRows.map((row, idx) => (
                   <tr key={idx}>
                     <td>{row.period}</td>
                     <td>{row.dailyAmount.toLocaleString()}</td>
                     <td>
-                      <meter value={row.ratio} min={0} max={100} />
-                      {row.ratio.toFixed(1)}%
+                      <meter min="0" max="100" value={row.ratio} low={40} high={70} optimum={80}></meter>
                     </td>
                   </tr>
                 ))}
@@ -277,24 +298,31 @@ export default function KeywordAnalyzer() {
           {/* 세 번째 컬럼: 관련 키워드 */}
           <div className={styles.third_column}>
             <h5>관련 키워드</h5>
-            <div className={styles.auto_keywords}>
-              {autoKeywords.map((kw, idx) => (
-                <a
-                  key={idx}
-                  href="#"
-                  onClick={e => {
-                    e.preventDefault();
-                    setKeyword(kw);
-                    handleAnalyze(kw);
-                  }}
-                >
-                  {kw}
-                </a>
-              ))}
-            </div>
+            <table className={styles.ratio_table} border={1}>
+              <tbody>
+                {autoKeywords.map((kw, idx) => (
+                  <tr key={idx}>
+                    <td>
+                      <a
+                        href="#"
+                        onClick={e => {
+                          e.preventDefault();
+                          setKeyword(kw);
+                          handleAnalyze(kw);
+                        }}
+                      >
+                        {kw}
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
     </div>
   );
-} 
+};
+
+export default KeywordAnalyzer; 
