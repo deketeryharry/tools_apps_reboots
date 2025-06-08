@@ -1,0 +1,223 @@
+.card {
+  max-width: 600px;
+  margin: 48px auto;
+  padding: 32px;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border: 1px solid #e5e8eb;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  position: relative;
+}
+
+.heading {
+  font-size: 1.7rem;
+  font-weight: bold;
+  color: #191f28;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.label {
+  color: #4e5968;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 96px;
+  padding: 14px;
+  border: 1px solid #e5e8eb;
+  border-radius: 14px;
+  font-size: 1rem;
+  background: #f9fafb;
+  resize: none;
+  margin-bottom: 8px;
+}
+
+.inputRow {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  margin-bottom: 8px;
+}
+
+.inputWrap {
+  display: flex;
+  flex-direction: column;
+  width: 140px;
+  min-width: 100px;
+  max-width: 180px;
+}
+
+.input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e5e8eb;
+  border-radius: 12px;
+  font-size: 1rem;
+  background: #f9fafb;
+}
+
+.checkboxRow {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-width: 0;
+}
+
+.checkboxWrap {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0;
+  margin-left: 18px;
+  white-space: nowrap;
+}
+
+.checkbox {
+  margin-right: 6px;
+  accent-color: #3182f6;
+}
+
+.btnRow {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.btn {
+  flex: 1;
+  padding: 13px 0;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btnPrimary {
+  background: #3182f6;
+  color: #fff;
+}
+
+.btnPrimary:disabled {
+  background: #bcdcff;
+  color: #fff;
+  cursor: not-allowed;
+}
+
+.btnPrimary:hover:not(:disabled) {
+  background: #2563c6;
+}
+
+.btnSecondary {
+  background: #f2f4f6;
+  color: #4e5968;
+}
+
+.btnSecondary:hover {
+  background: #e5e8eb;
+}
+
+.result {
+  background: #f9fafb;
+  border: 1px solid #e5e8eb;
+  border-radius: 14px;
+  padding: 18px;
+  margin-top: 12px;
+  font-family: 'Menlo', 'Consolas', monospace;
+  font-size: 1rem;
+  color: #191f28;
+}
+
+.resultHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.copyBtn {
+  background: none;
+  border: none;
+  color: #3182f6;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.copyBtn:hover {
+  background: #e8f0fe;
+}
+
+.timestamp {
+  margin-top: 10px;
+  color: #8b95a1;
+  font-size: 0.95rem;
+}
+
+/* 추첨 애니메이션 모달 */
+.lotteryModalOverlay {
+  position: absolute;
+  left: 0; top: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.08);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lotteryModal {
+  width: 260px;
+  height: 260px;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  z-index: 20;
+  padding: 32px 18px;
+  text-align: center;
+}
+
+.lotteryText {
+  font-size: 1.2rem;
+  color: #3182f6;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.progressBarWrap {
+  width: 100%;
+  max-width: 180px;
+  height: 16px;
+  background: #e5e8eb;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.progressBar {
+  height: 100%;
+  background: linear-gradient(90deg, #3182f6 60%, #bcdcff 100%);
+  border-radius: 8px 0 0 8px;
+  transition: width 0.2s;
+}
+
+.progressPercent {
+  margin-top: 6px;
+  font-size: 1rem;
+  color: #3182f6;
+  font-weight: 500;
+} 
