@@ -2,6 +2,8 @@ import { useState } from 'react';
 import axios from 'axios';
 import styles from './KeywordAnalyzer.module.css';
 
+console.log('VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL);
+
 interface KeywordRow {
   relKeyword: string;
   monthlyPcQcCnt: number | string;
