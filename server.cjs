@@ -7,7 +7,7 @@ require('dotenv').config();
 console.log('서버 코드가 실행되고 있습니다!');
 
 const app = express();
-const port = 4000;
+const port = process.env.PORT || 4000;
 
 app.use(cors());
 app.use(express.json());
