@@ -76,8 +76,8 @@ export default function LottoGenerator() {
   }
 
   return (
-    <div style={{ maxWidth: 600, margin: '48px auto', padding: 32, background: '#fff', borderRadius: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.04)', border: '1px solid #e5e8eb', display: 'flex', flexDirection: 'column', gap: 32 }}>
-      <h1 style={{ fontSize: '2rem', fontWeight: 'bold', textAlign: 'center', marginBottom: 20, color: '#222' }}>로또번호 추첨기</h1>
+    <div style={{ maxWidth: 600, margin: '48px auto', padding: 32, background: 'var(--background)', borderRadius: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.04)', border: '1px solid #e5e8eb', display: 'flex', flexDirection: 'column', gap: 32, color: 'var(--foreground)', fontFamily: 'inherit' }}>
+      <h1 style={{ fontSize: '2rem', fontWeight: 'bold', textAlign: 'center', marginBottom: 20, color: 'var(--foreground)' }}>로또번호 추첨기</h1>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', justifyContent: 'center', marginBottom: 18 }}>
         <label>
           세트 수
@@ -86,7 +86,7 @@ export default function LottoGenerator() {
           </select>
         </label>
         <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <input type="checkbox" checked={withBonus} onChange={e => setWithBonus(e.target.checked)} />
+          <input type="checkbox" checked={withBonus} onChange={e => setWithBonus(e.target.checked)} style={{ accentColor: '#3182f6' }} />
           보너스 번호 포함
         </label>
         <button style={{ padding: '12px 20px', background: '#007BFF', color: '#fff', border: 'none', borderRadius: 8, fontSize: '1rem', fontWeight: 500, margin: '0 4px', cursor: 'pointer', transition: 'background 0.15s' }} onClick={handleGenerate} disabled={isDrawing}>추첨하기</button>
@@ -98,7 +98,7 @@ export default function LottoGenerator() {
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
         {results.map((set, idx) => (
-          <div key={idx} style={{ background: '#fff', borderRadius: 12, boxShadow: '0 2px 12px rgba(0,0,0,0.07)', padding: 16, marginBottom: 8 }}>
+          <div key={idx} style={{ background: 'var(--background)', borderRadius: 12, boxShadow: '0 2px 12px rgba(0,0,0,0.07)', padding: 16, marginBottom: 8, color: 'var(--foreground)' }}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
               {set.numbers.map((n, i) => (
                 <span key={i} style={{ display: 'inline-block', width: 40, height: 40, lineHeight: '40px', borderRadius: '50%', textAlign: 'center', fontWeight: 'bold', color: '#fff', fontSize: '1.15rem', margin: '4px 2px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', background: getBallColor(n) }}>{n}</span>

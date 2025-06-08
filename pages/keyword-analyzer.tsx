@@ -97,24 +97,24 @@ export default function KeywordAnalyzer() {
   };
 
   return (
-    <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 0 60px 0', fontSize: 14 }}>
+    <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 0 60px 0', fontSize: 14, color: 'var(--foreground)', background: 'var(--background)', fontFamily: 'inherit' }}>
       <div style={{ display: 'flex', gap: 32 }}>
         <div style={{ flex: 2 }}>
-          <h1>키워드 분석기</h1>
+          <h1 style={{ color: 'var(--foreground)' }}>키워드 분석기</h1>
           <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
             <input
-              style={{ flex: 1, padding: '10px 12px', border: '1.5px solid #03c75a', borderRadius: 8, fontSize: 14, outline: 'none', background: '#fff' }}
+              style={{ flex: 1, padding: '10px 12px', border: '1.5px solid #03c75a', borderRadius: 8, fontSize: 14, outline: 'none', background: 'var(--background)', color: 'var(--foreground)' }}
               value={keyword}
               onChange={e => setKeyword(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && !isLoading && handleAnalyze()}
               placeholder="키워드를 입력하세요"
             />
-            <button style={{ background: 'linear-gradient(90deg, #03c75a 60%, #3182f6 100%)', color: '#fff', border: 'none', borderRadius: 8, padding: '0 18px', fontSize: 14, fontWeight: 700, cursor: 'pointer', height: 36 }} onClick={() => handleAnalyze()} disabled={isLoading}>
+            <button style={{ background: 'linear-gradient(90deg, #03c75a 60%, #3182f6 100%)', color: '#fff', border: 'none', borderRadius: 8, padding: '0 18px', fontSize: 14, fontWeight: 700, cursor: 'pointer', height: 36, fontFamily: 'inherit' }} onClick={() => handleAnalyze()} disabled={isLoading}>
               조회하기
             </button>
           </div>
-          {error && <div style={{ color: '#ff5a5a', background: '#fff0f0', border: '1px solid #ffbdbd', borderRadius: 8, padding: '8px 12px', marginBottom: 12, fontSize: 13 }}>{error}</div>}
-          <table style={{ width: '100%', background: '#fff', borderRadius: 12, boxShadow: '0 2px 12px rgba(49, 130, 246, 0.06)', marginBottom: 18 }} border={2}>
+          {error && <div style={{ color: '#ff5a5a', background: 'var(--background)', border: '1px solid #ffbdbd', borderRadius: 8, padding: '8px 12px', marginBottom: 12, fontSize: 13 }}>{error}</div>}
+          <table style={{ width: '100%', background: 'var(--background)', borderRadius: 12, boxShadow: '0 2px 12px rgba(49, 130, 246, 0.06)', marginBottom: 18, color: 'var(--foreground)' }} border={2}>
             <thead>
               <tr>
                 <td style={{ width: '5%' }}>-</td>
@@ -144,7 +144,7 @@ export default function KeywordAnalyzer() {
               ))}
             </tbody>
           </table>
-          <table style={{ width: '100%', background: '#fff', borderRadius: 12, boxShadow: '0 2px 12px rgba(49, 130, 246, 0.06)', marginBottom: 18 }} border={2}>
+          <table style={{ width: '100%', background: 'var(--background)', borderRadius: 12, boxShadow: '0 2px 12px rgba(49, 130, 246, 0.06)', marginBottom: 18, color: 'var(--foreground)' }} border={2}>
             <thead>
               <tr>
                 <td style={{ width: '18%' }}>키워드</td>
@@ -176,7 +176,7 @@ export default function KeywordAnalyzer() {
             </tbody>
           </table>
           <div>
-            <table border={2} style={{ width: '100%', background: '#fff', borderRadius: 12, boxShadow: '0 2px 12px rgba(49, 130, 246, 0.06)', marginBottom: 18 }}>
+            <table border={2} style={{ width: '100%', background: 'var(--background)', borderRadius: 12, boxShadow: '0 2px 12px rgba(49, 130, 246, 0.06)', marginBottom: 18, color: 'var(--foreground)' }}>
               <thead>
                 <tr>
                   <td>PC 탭순서</td>
@@ -193,7 +193,7 @@ export default function KeywordAnalyzer() {
               </tbody>
             </table>
           </div>
-          <table style={{ width: '100%', background: '#fff', borderRadius: 12, boxShadow: '0 2px 12px rgba(49, 130, 246, 0.06)', marginBottom: 18 }} border={2}>
+          <table style={{ width: '100%', background: 'var(--background)', borderRadius: 12, boxShadow: '0 2px 12px rgba(49, 130, 246, 0.06)', marginBottom: 18, color: 'var(--foreground)' }} border={2}>
             <thead>
               <tr>
                 <td colSpan={4}>조회 키워드의 상위10 블로그</td>
@@ -221,7 +221,7 @@ export default function KeywordAnalyzer() {
             </tbody>
           </table>
         </div>
-        <div style={{ flex: 1, background: '#fff', borderRadius: 12, boxShadow: '0 2px 12px rgba(49, 130, 246, 0.06)', padding: '16px 10px 10px 10px', marginBottom: 18 }}>
+        <div style={{ flex: 1, background: 'var(--background)', borderRadius: 12, boxShadow: '0 2px 12px rgba(49, 130, 246, 0.06)', padding: '16px 10px 10px 10px', marginBottom: 18, color: 'var(--foreground)' }}>
           <h5 style={{ color: '#3182f6', fontSize: '1rem', fontWeight: 700, marginBottom: 10 }}>날짜 및 조회량</h5>
           <table style={{ width: '100%' }} border={1}>
             <tbody>
@@ -237,7 +237,7 @@ export default function KeywordAnalyzer() {
             </tbody>
           </table>
         </div>
-        <div style={{ flex: 1, background: '#fff', borderRadius: 12, boxShadow: '0 2px 12px rgba(49, 130, 246, 0.06)', padding: '16px 10px 10px 10px', marginBottom: 18 }}>
+        <div style={{ flex: 1, background: 'var(--background)', borderRadius: 12, boxShadow: '0 2px 12px rgba(49, 130, 246, 0.06)', padding: '16px 10px 10px 10px', marginBottom: 18, color: 'var(--foreground)' }}>
           <h5 style={{ color: '#3182f6', fontSize: '1rem', fontWeight: 700, marginBottom: 10 }}>관련 키워드</h5>
           <table style={{ width: '100%' }} border={1}>
             <tbody>

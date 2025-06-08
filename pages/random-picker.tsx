@@ -81,24 +81,24 @@ export default function RandomPicker() {
   };
 
   return (
-    <div style={{ maxWidth: 600, margin: '48px auto', padding: 32, background: '#fff', borderRadius: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.04)', border: '1px solid #e5e8eb', display: 'flex', flexDirection: 'column', gap: 32, position: 'relative' }}>
-      <h1 style={{ fontSize: '1.7rem', fontWeight: 'bold', color: '#191f28', marginBottom: '1.5rem', textAlign: 'center' }}>랜덤 당첨자 추출기</h1>
-      <label style={{ color: '#4e5968', fontSize: '1rem', fontWeight: 500, marginBottom: 8, display: 'block' }}>항목 입력 (줄바꿈 또는 쉼표로 구분)</label>
+    <div style={{ maxWidth: 600, margin: '48px auto', padding: 32, background: 'var(--background)', borderRadius: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.04)', border: '1px solid #e5e8eb', display: 'flex', flexDirection: 'column', gap: 32, position: 'relative', color: 'var(--foreground)', fontFamily: 'inherit' }}>
+      <h1 style={{ fontSize: '1.7rem', fontWeight: 'bold', color: 'var(--foreground)', marginBottom: '1.5rem', textAlign: 'center' }}>랜덤 당첨자 추출기</h1>
+      <label style={{ color: 'var(--foreground)', fontSize: '1rem', fontWeight: 500, marginBottom: 8, display: 'block' }}>항목 입력 (줄바꿈 또는 쉼표로 구분)</label>
       <textarea
-        style={{ width: '100%', minHeight: 96, padding: 14, border: '1px solid #e5e8eb', borderRadius: 14, fontSize: '1rem', background: '#f9fafb', resize: 'none', marginBottom: 8 }}
+        style={{ width: '100%', minHeight: 96, padding: 14, border: '1px solid #e5e8eb', borderRadius: 14, fontSize: '1rem', background: 'var(--background)', color: 'var(--foreground)', resize: 'none', marginBottom: 8 }}
         value={input}
         onChange={(e) => setInput(e.target.value)}
         placeholder={"예시:\nuser1@example.com\nuser2@example.com\nuser3@example.com"}
       />
       <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end', marginBottom: 8 }}>
         <div style={{ display: 'flex', flexDirection: 'column', width: 140, minWidth: 100, maxWidth: 180 }}>
-          <label style={{ color: '#4e5968', fontSize: '1rem', fontWeight: 500, marginBottom: 8, display: 'block' }}>당첨자 수</label>
+          <label style={{ color: 'var(--foreground)', fontSize: '1rem', fontWeight: 500, marginBottom: 8, display: 'block' }}>당첨자 수</label>
           <input
             type="number"
             min="1"
             value={numWinners}
             onChange={e => setNumWinners(e.target.value.replace(/[^\d]/g, ''))}
-            style={{ width: '100%', padding: 12, border: '1px solid #e5e8eb', borderRadius: 12, fontSize: '1rem', background: '#f9fafb' }}
+            style={{ width: '100%', padding: 12, border: '1px solid #e5e8eb', borderRadius: 12, fontSize: '1rem', background: 'var(--background)', color: 'var(--foreground)' }}
             placeholder="숫자 입력"
             disabled={isLoading}
           />
@@ -113,17 +113,17 @@ export default function RandomPicker() {
               style={{ marginRight: 6, accentColor: '#3182f6' }}
               disabled={isLoading}
             />
-            <label htmlFor="removeDuplicates" style={{ marginBottom: 0, fontWeight: 400, color: '#4e5968', fontSize: '1rem' }}>
+            <label htmlFor="removeDuplicates" style={{ marginBottom: 0, fontWeight: 400, color: 'var(--foreground)', fontSize: '1rem' }}>
               중복 제거
             </label>
           </div>
         </div>
       </div>
       <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
-        <button onClick={handlePickRandom} style={{ flex: 1, padding: '13px 0', borderRadius: 12, fontWeight: 500, fontSize: '1rem', border: 'none', cursor: 'pointer', background: '#3182f6', color: '#fff', transition: 'background 0.15s' }} disabled={isLoading}>
+        <button onClick={handlePickRandom} style={{ flex: 1, padding: '13px 0', borderRadius: 12, fontWeight: 500, fontSize: '1rem', border: 'none', cursor: 'pointer', background: '#3182f6', color: '#fff', transition: 'background 0.15s', fontFamily: 'inherit' }} disabled={isLoading}>
           {isLoading ? '추첨중...' : '랜덤 선택'}
         </button>
-        <button onClick={handleClear} style={{ flex: 1, padding: '13px 0', borderRadius: 12, fontWeight: 500, fontSize: '1rem', border: 'none', cursor: 'pointer', background: '#f2f4f6', color: '#4e5968', transition: 'background 0.15s' }} disabled={isLoading}>지우기</button>
+        <button onClick={handleClear} style={{ flex: 1, padding: '13px 0', borderRadius: 12, fontWeight: 500, fontSize: '1rem', border: 'none', cursor: 'pointer', background: 'var(--gray-alpha-200, #f2f4f6)', color: 'var(--foreground)', transition: 'background 0.15s', fontFamily: 'inherit' }} disabled={isLoading}>지우기</button>
       </div>
       {isLoading && (
         <div style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.08)', zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -137,7 +137,7 @@ export default function RandomPicker() {
         </div>
       )}
       {winners.length > 0 && !isLoading && (
-        <div style={{ background: '#f9fafb', border: '1px solid #e5e8eb', borderRadius: 14, padding: 18, marginTop: 12, fontFamily: 'Menlo, Consolas, monospace', fontSize: '1rem', color: '#191f28' }}>
+        <div style={{ background: 'var(--background)', border: '1px solid #e5e8eb', borderRadius: 14, padding: 18, marginTop: 12, fontFamily: 'Menlo, Consolas, monospace', fontSize: '1rem', color: 'var(--foreground)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
             <span>결과</span>
             <button onClick={handleCopy} style={{ background: 'none', border: 'none', color: '#3182f6', cursor: 'pointer', padding: 4, borderRadius: 6, transition: 'background 0.15s' }} title="결과 복사">
