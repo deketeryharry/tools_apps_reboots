@@ -57,6 +57,8 @@ const KeywordAnalyzer = () => {
   const [autoKeywords, setAutoKeywords] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+
   const handleAnalyze = async (kw?: string) => {
     const searchKeyword = typeof kw === 'string' ? kw : keyword;
     if (isLoading) return; // 중복 방지
@@ -67,7 +69,7 @@ const KeywordAnalyzer = () => {
     setError(null);
     setIsLoading(true);
     try {
-      const res1 = await axios.get(`/api/list_1?keyword_give=${encodeURIComponent(searchKeyword)}`);
+      const res1 = await axios.get(`${apiBase}/api/list_1?keyword_give=${encodeURIComponent(searchKeyword)}`);
       const data = res1.data;
       if (data.error) {
         setError(`서버 오류: ${data.error}`);
@@ -123,7 +125,7 @@ const KeywordAnalyzer = () => {
         ratio: row.ratio,
       })));
       // 자동완성
-      const res4 = await axios.get(`/api/list_4?keyword_give=${encodeURIComponent(searchKeyword)}`);
+      const res4 = await axios.get(`${apiBase}/api/list_4?keyword_give=${encodeURIComponent(searchKeyword)}`);
       setAutoKeywords((res4.data.auto_keyword || []).map((k: any) => typeof k === 'string' ? k : String(k)));
     } catch (err: any) {
       if (err.response && err.response.data && err.response.data.error) {
