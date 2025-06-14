@@ -11,6 +11,7 @@ export default function Home() {
       <Link href="/character-counter" style={linkBtnStyle}>문자 수 세기 →</Link>
       <Link href="/lotto-generator" style={linkBtnStyle}>로또 추첨기 →</Link>
       <Link href="/keyword-analyzer" style={linkBtnStyle}>키워드 분석기 →</Link>
+      <Link href="/salary-calculator" style={linkBtnStyle}>연봉 계산기 →</Link>
     </div>
   );
 }

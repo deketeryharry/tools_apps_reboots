@@ -96,6 +96,47 @@ export default function KeywordAnalyzer() {
     setKeywordRows(rows => rows.filter((_, i) => i !== idx));
   };
 
+  // 표 스타일 공통 객체
+  const tableStyle = {
+    width: '100%',
+    borderCollapse: 'separate' as const,
+    borderSpacing: 0,
+    background: '#fff',
+    borderRadius: 12,
+    overflow: 'hidden',
+    boxShadow: '0 2px 12px rgba(49,130,246,0.06)',
+    marginBottom: 12,
+    fontSize: 13,
+  };
+  const thStyle = {
+    background: '#222',
+    color: '#fff',
+    fontWeight: 700,
+    padding: '7px 6px',
+    borderBottom: '2px solid #e5e8eb',
+    textAlign: 'center' as const,
+    fontSize: 13,
+  };
+  const tdStyle = {
+    padding: '6px 6px',
+    textAlign: 'center' as const,
+    borderBottom: '1px solid #e5e8eb',
+    background: '#fff',
+    fontSize: 13,
+  };
+  const trHover = {
+    transition: 'background 0.15s',
+    height: 32,
+  };
+  // 게이지 색상 함수
+  function getGaugeColor(percent: number) {
+    if (percent < 0.6) return '#ef4444'; // 빨강
+    if (percent < 0.85) return '#facc15'; // 노랑
+    return '#22c55e'; // 초록
+  }
+  // 날짜별 조회량 게이지 최대값 계산
+  const maxRatio = ratioRows.length > 0 ? Math.max(...ratioRows.map((row: any) => row.ratio)) : 1;
+
   return (
     <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 0 60px 0', fontSize: 14, color: 'var(--foreground)', background: 'var(--background)', fontFamily: 'inherit' }}>
       <div style={{ display: 'flex', gap: 32 }}>
@@ -114,49 +155,49 @@ export default function KeywordAnalyzer() {
             </button>
           </div>
           {error && <div style={{ color: '#ff5a5a', background: 'var(--background)', border: '1px solid #ffbdbd', borderRadius: 8, padding: '8px 12px', marginBottom: 12, fontSize: 13 }}>{error}</div>}
-          <table style={{ width: '100%', background: 'var(--background)', borderRadius: 12, boxShadow: '0 2px 12px rgba(49, 130, 246, 0.06)', marginBottom: 18, color: 'var(--foreground)' }} border={2}>
+          <table style={tableStyle}>
             <thead>
               <tr>
-                <td style={{ width: '5%' }}>-</td>
-                <td style={{ width: '17%' }}>키워드</td>
-                <td style={{ width: '10%' }}>PC</td>
-                <td style={{ width: '10%' }}>MO</td>
-                <td style={{ width: '12%' }}>SUM</td>
-                <td style={{ width: '12%' }}>DOC</td>
-                <td style={{ width: '20%' }}>PC top10</td>
+                <th style={{ ...thStyle, width: '5%' }}>-</th>
+                <th style={{ ...thStyle, width: '17%' }}>키워드</th>
+                <th style={{ ...thStyle, width: '10%' }}>PC</th>
+                <th style={{ ...thStyle, width: '10%' }}>MO</th>
+                <th style={{ ...thStyle, width: '12%' }}>SUM</th>
+                <th style={{ ...thStyle, width: '12%' }}>DOC</th>
+                <th style={{ ...thStyle, width: '20%' }}>PC top10</th>
               </tr>
             </thead>
             <tbody>
               {keywordRows.map((row, idx) => (
-                <tr key={idx}>
-                  <td>
+                <tr key={idx} style={trHover} onMouseOver={e => (e.currentTarget.style.background = '#f4f6fa')} onMouseOut={e => (e.currentTarget.style.background = '#fff')}>
+                  <td style={tdStyle}>
                     <button style={{ background: '#fff', color: '#ff5a5a', border: '1.5px solid #ff5a5a', borderRadius: 6, fontSize: 12, padding: '2px 8px', cursor: 'pointer' }} onClick={() => handleDeleteRow(idx)}>
                       X
                     </button>
                   </td>
-                  <td>{row.relKeyword || keyword.replace(/\s/g, '')}</td>
-                  <td>{Math.max(Number(row.monthlyPcQcCnt), 10).toLocaleString()}</td>
-                  <td>{Math.max(Number(row.monthlyMobileQcCnt), 10).toLocaleString()}</td>
-                  <td>{(Math.max(Number(row.monthlyPcQcCnt), 10) + Math.max(Number(row.monthlyMobileQcCnt), 10)).toLocaleString()}</td>
-                  <td>{Number(row.totalDoc).toLocaleString()}</td>
-                  <td>{row.blogPcType}</td>
+                  <td style={tdStyle}>{row.relKeyword || keyword.replace(/\s/g, '')}</td>
+                  <td style={tdStyle}>{Math.max(Number(row.monthlyPcQcCnt), 10).toLocaleString()}</td>
+                  <td style={tdStyle}>{Math.max(Number(row.monthlyMobileQcCnt), 10).toLocaleString()}</td>
+                  <td style={tdStyle}>{(Math.max(Number(row.monthlyPcQcCnt), 10) + Math.max(Number(row.monthlyMobileQcCnt), 10)).toLocaleString()}</td>
+                  <td style={tdStyle}>{Number(row.totalDoc).toLocaleString()}</td>
+                  <td style={{ ...tdStyle, letterSpacing: 2 }}>{row.blogPcType.split('').map((c: string, i: number) => c === 'N' ? <span key={i} style={{ color: '#22c55e', fontWeight: 700 }}>N</span> : c).reduce((a: any, b: any) => [a, b])}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <table style={{ width: '100%', background: 'var(--background)', borderRadius: 12, boxShadow: '0 2px 12px rgba(49, 130, 246, 0.06)', marginBottom: 18, color: 'var(--foreground)' }} border={2}>
+          <table style={tableStyle}>
             <thead>
               <tr>
-                <td style={{ width: '18%' }}>키워드</td>
-                <td style={{ width: '11%' }}>PC</td>
-                <td style={{ width: '11%' }}>MO</td>
-                <td style={{ width: '12%' }}>SUM</td>
+                <th style={{ ...thStyle, width: '18%' }}>키워드</th>
+                <th style={{ ...thStyle, width: '11%' }}>PC</th>
+                <th style={{ ...thStyle, width: '11%' }}>MO</th>
+                <th style={{ ...thStyle, width: '12%' }}>SUM</th>
               </tr>
             </thead>
             <tbody>
               {keyword10Rows.map((row, idx) => (
-                <tr key={idx}>
-                  <td>
+                <tr key={idx} style={trHover} onMouseOver={e => (e.currentTarget.style.background = '#f4f6fa')} onMouseOut={e => (e.currentTarget.style.background = '#fff')}>
+                  <td style={tdStyle}>
                     <a
                       href="#"
                       onClick={e => {
@@ -168,54 +209,54 @@ export default function KeywordAnalyzer() {
                       {row.relKeyword}
                     </a>
                   </td>
-                  <td>{Math.max(Number(row.monthlyPcQcCnt), 10).toLocaleString()}</td>
-                  <td>{Math.max(Number(row.monthlyMobileQcCnt), 10).toLocaleString()}</td>
-                  <td>{(Math.max(Number(row.monthlyPcQcCnt), 10) + Math.max(Number(row.monthlyMobileQcCnt), 10)).toLocaleString()}</td>
+                  <td style={tdStyle}>{Math.max(Number(row.monthlyPcQcCnt), 10).toLocaleString()}</td>
+                  <td style={tdStyle}>{Math.max(Number(row.monthlyMobileQcCnt), 10).toLocaleString()}</td>
+                  <td style={tdStyle}>{(Math.max(Number(row.monthlyPcQcCnt), 10) + Math.max(Number(row.monthlyMobileQcCnt), 10)).toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>
           </table>
           <div>
-            <table border={2} style={{ width: '100%', background: 'var(--background)', borderRadius: 12, boxShadow: '0 2px 12px rgba(49, 130, 246, 0.06)', marginBottom: 18, color: 'var(--foreground)' }}>
+            <table style={tableStyle}>
               <thead>
                 <tr>
-                  <td>PC 탭순서</td>
-                  <td>MO 탭순서</td>
+                  <th style={{ ...thStyle, width: '50%' }}>PC 탭순서</th>
+                  <th style={{ ...thStyle, width: '50%' }}>MO 탭순서</th>
                 </tr>
               </thead>
               <tbody>
                 {tabOrderRows.map((row, idx) => (
-                  <tr key={idx}>
-                    <td>{row.pc}</td>
-                    <td>{row.mo}</td>
+                  <tr key={idx} style={trHover} onMouseOver={e => (e.currentTarget.style.background = '#f4f6fa')} onMouseOut={e => (e.currentTarget.style.background = '#fff')}>
+                    <td style={tdStyle}>{row.pc}</td>
+                    <td style={tdStyle}>{row.mo}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <table style={{ width: '100%', background: 'var(--background)', borderRadius: 12, boxShadow: '0 2px 12px rgba(49, 130, 246, 0.06)', marginBottom: 18, color: 'var(--foreground)' }} border={2}>
+          <table style={tableStyle}>
             <thead>
               <tr>
-                <td colSpan={4}>조회 키워드의 상위10 블로그</td>
+                <th style={thStyle} colSpan={4}>조회 키워드의 상위10 블로그</th>
               </tr>
               <tr>
-                <td style={{ width: '20%' }}>블로그명</td>
-                <td style={{ width: '8%' }}>출처</td>
-                <td style={{ width: '52%' }}>제목</td>
-                <td style={{ width: '15%' }}>발행일</td>
+                <th style={{ ...thStyle, width: '20%' }}>블로그명</th>
+                <th style={{ ...thStyle, width: '8%' }}>출처</th>
+                <th style={{ ...thStyle, width: '52%' }}>제목</th>
+                <th style={{ ...thStyle, width: '15%' }}>발행일</th>
               </tr>
             </thead>
             <tbody>
               {blogRows.map((row, idx) => (
-                <tr key={idx}>
-                  <td>
+                <tr key={idx} style={trHover} onMouseOver={e => (e.currentTarget.style.background = '#f4f6fa')} onMouseOut={e => (e.currentTarget.style.background = '#fff')}>
+                  <td style={tdStyle}>
                     <a href={row.블로그링크} target="_blank" rel="noopener noreferrer">
                       {row.블로그이름}
                     </a>
                   </td>
-                  <td>{row.블로그타입}</td>
-                  <td>{row.블로그제목}</td>
-                  <td>{row.발행날짜}</td>
+                  <td style={tdStyle}>{row.블로그타입}</td>
+                  <td style={tdStyle}>{row.블로그제목}</td>
+                  <td style={tdStyle}>{row.발행날짜}</td>
                 </tr>
               ))}
             </tbody>
@@ -224,20 +265,28 @@ export default function KeywordAnalyzer() {
         <div style={{ flex: 1, background: 'var(--background)', borderRadius: 12, boxShadow: '0 2px 12px rgba(49, 130, 246, 0.06)', padding: '16px 10px 10px 10px', marginBottom: 18, color: 'var(--foreground)' }}>
           <h5 style={{ color: '#3182f6', fontSize: '1rem', fontWeight: 700, marginBottom: 10 }}>날짜 및 조회량</h5>
           {ratioRows.length > 0 ? (
-            <table style={{ width: '100%' }} border={1}>
+            <table style={tableStyle}>
               <thead>
                 <tr>
-                  <td>날짜</td>
-                  <td>조회량(비율)</td>
+                  <th style={{ ...thStyle, width: '50%' }}>날짜</th>
+                  <th style={{ ...thStyle, width: '50%' }}>조회량 / 비율</th>
                 </tr>
               </thead>
               <tbody>
-                {ratioRows.map((row, idx) => (
-                  <tr key={idx}>
-                    <td>{row.period}</td>
-                    <td>{row.dailyAmount.toLocaleString()} ({row.ratio.toFixed(2)})</td>
-                  </tr>
-                ))}
+                {ratioRows.map((row, idx) => {
+                  const percent = row.ratio / maxRatio;
+                  return (
+                    <tr key={idx} style={trHover} onMouseOver={e => (e.currentTarget.style.background = '#f4f6fa')} onMouseOut={e => (e.currentTarget.style.background = '#fff')}>
+                      <td style={tdStyle}>{row.period}</td>
+                      <td style={{ ...tdStyle, textAlign: 'left' }}>
+                        <span style={{ fontWeight: 600, marginRight: 8 }}>{row.dailyAmount.toLocaleString()}</span>
+                        <span style={{ display: 'inline-block', verticalAlign: 'middle', width: 80, height: 10, background: '#e5e8eb', borderRadius: 6, overflow: 'hidden', marginRight: 0 }}>
+                          <span style={{ display: 'inline-block', height: '100%', width: `${Math.round(percent * 100)}%`, background: getGaugeColor(percent), borderRadius: 6, transition: 'width 0.2s' }} />
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           ) : (
@@ -246,11 +295,11 @@ export default function KeywordAnalyzer() {
         </div>
         <div style={{ flex: 1, background: 'var(--background)', borderRadius: 12, boxShadow: '0 2px 12px rgba(49, 130, 246, 0.06)', padding: '16px 10px 10px 10px', marginBottom: 18, color: 'var(--foreground)' }}>
           <h5 style={{ color: '#3182f6', fontSize: '1rem', fontWeight: 700, marginBottom: 10 }}>관련 키워드</h5>
-          <table style={{ width: '100%' }} border={1}>
+          <table style={tableStyle}>
             <tbody>
               {autoKeywords.map((kw, idx) => (
-                <tr key={idx}>
-                  <td>
+                <tr key={idx} style={trHover} onMouseOver={e => (e.currentTarget.style.background = '#f4f6fa')} onMouseOut={e => (e.currentTarget.style.background = '#fff')}>
+                  <td style={tdStyle}>
                     <a
                       href="#"
                       onClick={e => {
