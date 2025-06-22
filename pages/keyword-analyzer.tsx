@@ -19,6 +19,7 @@ export default function KeywordAnalyzer() {
   const [ratioRows, setRatioRows] = useState<any[]>([]);
   const [autoKeywords, setAutoKeywords] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const handleAnalyze = async (kw?: string) => {
     const searchKeyword = typeof kw === 'string' ? kw : keyword;
@@ -31,12 +32,17 @@ export default function KeywordAnalyzer() {
     // Reset states
     setError(null);
     setIsLoading(true);
+    setProgress(0);
     setTabOrderRows([]);
     setRatioRows([]);
     setAutoKeywords([]);
     setBlogRows([]);
     setKeyword10Rows([]);
     
+    const interval = setInterval(() => {
+      setProgress(p => (p < 95 ? p + 5 : p));
+    }, 200);
+
     try {
       const mainPromise = axios.get(`/api/list_1?keyword_give=${encodeURIComponent(searchKeyword)}&part=main`);
       const tabsPromise = axios.get(`/api/list_1?keyword_give=${encodeURIComponent(searchKeyword)}&part=tabs`);
@@ -133,7 +139,11 @@ export default function KeywordAnalyzer() {
     } catch (err: any) {
       setError(`데이터를 가져오는 중 오류가 발생했습니다: ${err.message}`);
     } finally {
-      setIsLoading(false);
+      clearInterval(interval);
+      setProgress(100);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 500);
     }
   };
 
@@ -173,6 +183,45 @@ export default function KeywordAnalyzer() {
     height: 32,
   };
 
+  const modalBackdropStyle: React.CSSProperties = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    background: 'rgba(0, 0, 0, 0.6)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  };
+
+  const modalContentStyle: React.CSSProperties = {
+    background: 'white',
+    padding: '30px 50px',
+    borderRadius: '12px',
+    textAlign: 'center',
+    color: '#333',
+    boxShadow: '0 5px 25px rgba(0, 0, 0, 0.2)',
+  };
+
+  const progressBarStyle: React.CSSProperties = {
+    width: '280px',
+    height: '10px',
+    background: '#e9ecef',
+    borderRadius: '5px',
+    overflow: 'hidden',
+    marginTop: '12px',
+  };
+
+  const progressBarFillStyle = (progress: number): React.CSSProperties => ({
+    width: `${progress}%`,
+    height: '100%',
+    background: 'linear-gradient(90deg, #03c75a, #3182f6)',
+    borderRadius: '5px',
+    transition: 'width 0.3s ease-in-out',
+  });
+
   function getGaugeColor(percent: number) {
     if (percent < 0.6) return '#ef4444'; 
     if (percent < 0.85) return '#facc15'; 
@@ -183,6 +232,18 @@ export default function KeywordAnalyzer() {
 
   return (
     <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 20px 60px 20px', fontSize: 14, color: 'var(--foreground)', background: 'var(--background)', fontFamily: 'inherit' }}>
+      {isLoading && (
+        <div style={modalBackdropStyle}>
+          <div style={modalContentStyle}>
+            <h3 style={{ margin: '0 0 8px 0', fontSize: '1.25rem', fontWeight: 700 }}>조회중...</h3>
+            <p style={{ margin: 0, color: '#666', fontSize: '0.9rem' }}>데이터를 수집하고 있습니다. 잠시만 기다려주세요.</p>
+            <div style={progressBarStyle}>
+              <div style={progressBarFillStyle(progress)}></div>
+            </div>
+            <p style={{ margin: '12px 0 0', fontSize: '1rem', fontWeight: 'bold', color: '#3182f6' }}>{progress}%</p>
+          </div>
+        </div>
+      )}
       <div style={{ display: 'flex', gap: 32 }}>
         <div style={{ flex: 2 }}>
           <h1 style={{ color: 'var(--foreground)' }}>키워드 분석기</h1>
