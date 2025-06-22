@@ -36,6 +36,7 @@ export default function Navigation() {
           height: 56px;
           padding: 0 16px;
           box-sizing: border-box;
+          position: relative;
         }
         .nav-title {
           font-weight: 700;
@@ -51,6 +52,7 @@ export default function Navigation() {
         }
         .desktop-links {
           display: flex;
+          margin-left: auto;
         }
         .hamburger-button {
           display: none;
@@ -108,9 +110,14 @@ export default function Navigation() {
           }
           .hamburger-button {
             display: block;
+            position: absolute;
+            left: 16px;
           }
           .nav-container {
-            justify-content: space-between;
+            justify-content: center;
+          }
+          .nav-title {
+            margin-right: 0;
           }
         }
         @media (max-width: 768px) {
@@ -133,6 +140,11 @@ export default function Navigation() {
         boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
       }}>
         <div className="nav-container">
+          <button className="hamburger-button" onClick={() => setMenuOpen(!menuOpen)}>
+            <svg className="hamburger-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={menuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16m-7 6h7"}></path>
+            </svg>
+          </button>
           <Link href="/" style={{ textDecoration: 'none' }}>
             <span className="nav-title">해리의 UtilityTools</span>
           </Link>
@@ -156,11 +168,6 @@ export default function Navigation() {
               </Link>
             ))}
           </div>
-          <button className="hamburger-button" onClick={() => setMenuOpen(!menuOpen)}>
-            <svg className="hamburger-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={menuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16m-7 6h7"}></path>
-            </svg>
-          </button>
         </div>
       </nav>
       <div className={`mobile-menu ${menuOpen ? 'open' : ''}`} onClick={() => setMenuOpen(false)}>
