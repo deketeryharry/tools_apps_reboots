@@ -4,11 +4,6 @@ import * as cheerio from 'cheerio';
 import iconv from 'iconv-lite';
 import googleTrends from 'google-trends-api';
 
-const cleanKeyword = (keyword: string) => {
-  // Matches patterns like "1. " or "2." at the start, handles cases like "1.1위"
-  return keyword.replace(/^\d+\.\s*/, '');
-};
-
 async function getNateKeywords() {
   try {
     const now = new Date().toISOString().replace(/[-:.]/g, '').slice(0, 12);
@@ -16,7 +11,8 @@ async function getNateKeywords() {
     const { data } = await axios.get(url, { responseType: 'arraybuffer' });
     const decodedData = iconv.decode(data, 'EUC-KR');
     const keywordList = JSON.parse(decodedData);
-    return keywordList.map((item: [string, string]) => cleanKeyword(item[1])).slice(0, 10);
+    // Nate keywords are clean and don't need processing.
+    return keywordList.map((item: [string, string]) => item[1]).slice(0, 10);
   } catch (error) {
     console.error('Error fetching Nate keywords:', error);
     return [];
@@ -29,9 +25,13 @@ async function getZumKeywords() {
     const { data } = await axios.get(url);
     const $ = cheerio.load(data);
     const keywords: string[] = [];
-    // Use the specific selector for the keyword text to avoid including the rank number
-    $('a.keyword span.txt', 'div.list_wrap.animate').each((_, el) => {
-      keywords.push($(el).text().trim());
+    $('div.list_wrap.animate span.keyword').each((_, el) => {
+      // The text combines rank and keyword (e.g., "1키워드"). Remove leading digits.
+      const rawText = $(el).text().trim();
+      const cleanedKeyword = rawText.replace(/^\d+/, '').trim();
+      if (cleanedKeyword) {
+        keywords.push(cleanedKeyword);
+      }
     });
     return keywords.slice(0, 10);
   } catch (error) {

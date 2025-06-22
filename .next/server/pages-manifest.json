@@ -2,8 +2,7 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/": "pages/index.js",
-  "/realtime-keywords": "pages/realtime-keywords.js",
   "/news-analyzer": "pages/news-analyzer.js",
-  "/api/realtime-keywords": "pages/api/realtime-keywords.js"
+  "/realtime-keywords": "pages/realtime-keywords.js",
+  "/": "pages/index.js"
 }
