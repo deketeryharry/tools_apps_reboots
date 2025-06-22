@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import iconv from 'iconv-lite';
+import googleTrends from 'google-trends-api';
 
 async function getNateKeywords() {
   try {
@@ -35,12 +36,9 @@ async function getZumKeywords() {
 
 async function getGoogleKeywords() {
   try {
-    // geo=KR for South Korea
-    const url = 'https://trends.google.com/trends/api/topdailytrends?hl=ko&tz=-540&geo=KR';
-    const { data } = await axios.get(url);
-    // The actual JSON is prefixed with ")]}',\n"
-    const jsonData = JSON.parse(data.substring(5));
-    return jsonData.default.trendingSearchesDays[0].trendingSearches.map((item: any) => item.title.query).slice(0, 10);
+    const results = await googleTrends.dailyTrends({ geo: 'KR' });
+    const trends = JSON.parse(results).default.trendingSearchesDays[0].trendingSearches;
+    return trends.map((trend: any) => trend.title.query).slice(0, 10);
   } catch (error) {
     console.error('Error fetching Google keywords:', error);
     return [];
