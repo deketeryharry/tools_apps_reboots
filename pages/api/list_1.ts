@@ -96,50 +96,58 @@ async function getDatalab(keyword: string) {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { keyword_give: keyword } = req.query;
+  const { keyword_give: keyword, part } = req.query;
 
   if (typeof keyword !== 'string') {
     return res.status(400).json({ error: 'Keyword is required' });
   }
 
   try {
-    const [naverSearchData, relKeywords, vwjsPC, vwjsMO, datalab30] = await Promise.all([
-      getNaverSearchData(keyword).catch(e => { console.error("Error in getNaverSearchData:", e.message); return null; }),
-      getRelKeywords(keyword).catch(e => { console.error("Error in getRelKeywords:", e.message); return []; }),
-      getVwjs(keyword, 'pc').catch(e => { console.error("Error in getVwjs (pc):", e.message); return {}; }),
-      getVwjs(keyword, 'mo').catch(e => { console.error("Error in getVwjs (mo):", e.message); return {}; }),
-      getDatalab(keyword).catch(e => { console.error("Error in getDatalab:", e.message); return null; })
-    ]);
-    
-    const keywordAmount = (relKeywords?.find((k: any) => k.relKeyword === keyword.replace(/\s/g, '')) || {});
-    
-    const processedBlogData = naverSearchData?.items.map((blog: any) => {
-      const link = blog.link;
-      const blogType = link.includes('naver.com') ? 'N' :
-                       link.includes('tistory.com') ? 'T' :
-                       link.includes('daum.net') ? 'D' : 'E';
-      return {
-        ...blog,
-        블로그링크: blog.link,
-        블로그제목: blog.title.replace(/<[^>]*>/g, '').trim(),
-        발행날짜: blog.postdate ? `${blog.postdate.slice(0,4)}-${blog.postdate.slice(4,6)}-${blog.postdate.slice(6,8)}` : '',
-        블로그타입: blogType,
-        블로그이름: blog.bloggername,
-      };
-    }) || [];
+    if (part === 'main') {
+      const [naverSearchData, relKeywords] = await Promise.all([
+        getNaverSearchData(keyword).catch(e => { console.error("Error in getNaverSearchData:", e.message); return null; }),
+        getRelKeywords(keyword).catch(e => { console.error("Error in getRelKeywords:", e.message); return []; }),
+      ]);
+      
+      const keywordAmount = (relKeywords?.find((k: any) => k.relKeyword === keyword.replace(/\s/g, '')) || {});
+      const processedBlogData = naverSearchData?.items.map((blog: any) => {
+        const link = blog.link;
+        const blogType = link.includes('naver.com') ? 'N' :
+                         link.includes('tistory.com') ? 'T' :
+                         link.includes('daum.net') ? 'D' : 'E';
+        return {
+          ...blog,
+          블로그링크: blog.link,
+          블로그제목: blog.title.replace(/<[^>]*>/g, '').trim(),
+          발행날짜: blog.postdate ? `${blog.postdate.slice(0,4)}-${blog.postdate.slice(4,6)}-${blog.postdate.slice(6,8)}` : '',
+          블로그타입: blogType,
+          블로그이름: blog.bloggername,
+        };
+      }) || [];
 
-    res.status(200).json({
-      keyword_amount: {
-        ...keywordAmount,
-        relKeyword: keyword
-      },
-      keyword_amount_10: relKeywords || [],
-      docs_amount: { totaldoc: naverSearchData?.total || 0 },
-      blog_pc_10: processedBlogData,
-      vwjs_PC: vwjsPC || {},
-      vwjs_MO: vwjsMO || {},
-      datalab_30: datalab30,
-    });
+      return res.status(200).json({
+        keyword_amount: { ...keywordAmount, relKeyword: keyword },
+        keyword_amount_10: relKeywords || [],
+        docs_amount: { totaldoc: naverSearchData?.total || 0 },
+        blog_pc_10: processedBlogData,
+      });
+    }
+
+    if (part === 'tabs') {
+      const [vwjsPC, vwjsMO] = await Promise.all([
+        getVwjs(keyword, 'pc').catch(e => { console.error("Error in getVwjs (pc):", e.message); return {}; }),
+        getVwjs(keyword, 'mo').catch(e => { console.error("Error in getVwjs (mo):", e.message); return {}; }),
+      ]);
+      return res.status(200).json({ vwjs_PC: vwjsPC, vwjs_MO: vwjsMO });
+    }
+
+    if (part === 'datalab') {
+      const datalab30 = await getDatalab(keyword).catch(e => { console.error("Error in getDatalab:", e.message); return null; });
+      return res.status(200).json({ datalab_30: datalab30 });
+    }
+
+    return res.status(400).json({ error: 'Invalid part specified' });
+
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to fetch data', details: error.message });
   }

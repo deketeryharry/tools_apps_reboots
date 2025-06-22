@@ -27,87 +27,112 @@ export default function KeywordAnalyzer() {
       setError('키워드를 입력해주세요.');
       return;
     }
+
+    // Reset states
     setError(null);
     setIsLoading(true);
+    setTabOrderRows([]);
+    setRatioRows([]);
+    setAutoKeywords([]);
+    setBlogRows([]);
+    setKeyword10Rows([]);
+    
     try {
-      const res1 = await axios.get(`/api/list_1?keyword_give=${encodeURIComponent(searchKeyword)}`);
-      const data = res1.data;
-      if (data.error) {
-        setError(`서버 오류: ${data.error}`);
-        return;
-      }
-      const keyword_amount = data.keyword_amount;
-      const relKeyword = keyword_amount.relKeyword;
+      // Step 1: Fetch and display main data first
+      const resMain = await axios.get(`/api/list_1?keyword_give=${encodeURIComponent(searchKeyword)}&part=main`);
+      const mainData = resMain.data;
+
+      if (mainData.error) throw new Error(mainData.error);
+
+      const { keyword_amount, keyword_amount_10, docs_amount, blog_pc_10 } = mainData;
+      
       const monthlyPcQcCnt = parseSearchCount(keyword_amount.monthlyPcQcCnt);
       const monthlyMobileQcCnt = parseSearchCount(keyword_amount.monthlyMobileQcCnt);
       const monthlySumQcCnt = monthlyPcQcCnt + monthlyMobileQcCnt;
-      const totalDoc = data.docs_amount.totaldoc;
-      const blogPcType = data.blog_pc_10.map((b: any) => b.블로그타입).join('');
-      const keywordNoSpace = (typeof kw === 'string' ? kw : keyword).replace(/\s/g, '');
+      const totalDoc = docs_amount.totaldoc;
+      const blogPcType = (blog_pc_10 || []).map((b: any) => b.블로그타입).join('');
+      const keywordNoSpace = searchKeyword.replace(/\s/g, '');
+
       setKeywordRows(prev => [
         { relKeyword: keywordNoSpace, monthlyPcQcCnt, monthlyMobileQcCnt, monthlySumQcCnt, totalDoc, blogPcType },
         ...prev
       ]);
       setKeyword10Rows(
-        (data.keyword_amount_10 || []).map((row: any) => {
-          const monthlyPcQcCnt = parseSearchCount(row.monthlyPcQcCnt);
-          const monthlyMobileQcCnt = parseSearchCount(row.monthlyMobileQcCnt);
+        (keyword_amount_10 || []).map((row: any) => {
+          const pcCount = parseSearchCount(row.monthlyPcQcCnt);
+          const mobileCount = parseSearchCount(row.monthlyMobileQcCnt);
           return {
             relKeyword: row.relKeyword,
-            monthlyPcQcCnt,
-            monthlyMobileQcCnt,
-            monthlySumQcCnt: monthlyPcQcCnt + monthlyMobileQcCnt,
+            monthlyPcQcCnt: pcCount,
+            monthlyMobileQcCnt: mobileCount,
+            monthlySumQcCnt: pcCount + mobileCount,
           };
         })
       );
-      const tap_order_pc = data.vwjs_PC || {};
-      const tap_order_mo = data.vwjs_MO || {};
-      const pc_entries = Object.entries(tap_order_pc);
-      const mo_entries = Object.entries(tap_order_mo);
-      const maxLen = Math.max(pc_entries.length, mo_entries.length);
-      const tabRows: any[] = [];
-      for (let i = 0; i < maxLen; i++) {
-        const pc_entry = pc_entries[i];
-        const mo_entry = mo_entries[i];
-        tabRows.push({
-          pc: pc_entry ? `${pc_entry[0]}: ${pc_entry[1]}` : '',
-          mo: mo_entry ? `${mo_entry[0]}: ${mo_entry[1]}` : '',
-        });
+      setBlogRows(blog_pc_10 || []);
+
+      // Step 2: Fetch secondary data in parallel now that main data is displayed
+      const tabsPromise = axios.get(`/api/list_1?keyword_give=${encodeURIComponent(searchKeyword)}&part=tabs`);
+      const datalabPromise = axios.get(`/api/list_1?keyword_give=${encodeURIComponent(searchKeyword)}&part=datalab`);
+      const autoKeywordsPromise = axios.get(`/api/list_4?keyword_give=${encodeURIComponent(searchKeyword)}`);
+      
+      const [tabsRes, datalabRes, autoKeywordsRes] = await Promise.all([
+        tabsPromise,
+        datalabPromise,
+        autoKeywordsPromise
+      ]);
+
+      // Process and set tabs data
+      if (tabsRes.data) {
+        const { vwjs_PC, vwjs_MO } = tabsRes.data;
+        const pc_entries = Object.entries(vwjs_PC || {});
+        const mo_entries = Object.entries(vwjs_MO || {});
+        const maxLen = Math.max(pc_entries.length, mo_entries.length);
+        const tabRows: any[] = [];
+        for (let i = 0; i < maxLen; i++) {
+          const pc_entry = pc_entries[i];
+          const mo_entry = mo_entries[i];
+          tabRows.push({
+            pc: pc_entry ? `${pc_entry[0]}: ${pc_entry[1]}` : '',
+            mo: mo_entry ? `${mo_entry[0]}: ${mo_entry[1]}` : '',
+          });
+        }
+        setTabOrderRows(tabRows);
       }
-      setTabOrderRows(tabRows);
-      setBlogRows(data.blog_pc_10 || []);
       
-      const datalab = data.datalab_30?.results?.[0]?.data || [];
-      const datalabMap: Map<string, number> = new Map(datalab.map((item: any) => [item.period, item.ratio]));
-      
-      const allDates = [];
-      for (let i = 0; i < 30; i++) {
-        const date = new Date();
-        date.setDate(date.getDate() - 1 - i);
-        allDates.push(date.toISOString().split('T')[0]);
+      // Process and set datalab data
+      if (datalabRes.data) {
+        const datalab = datalabRes.data.datalab_30?.results?.[0]?.data || [];
+        const datalabMap: Map<string, number> = new Map(datalab.map((item: any) => [item.period, item.ratio]));
+        
+        const allDates: string[] = [];
+        for (let i = 0; i < 30; i++) {
+          const date = new Date();
+          date.setDate(date.getDate() - 1 - i);
+          allDates.push(date.toISOString().split('T')[0]);
+        }
+        
+        const filledDatalab = allDates.map(dateStr => ({
+          period: dateStr,
+          ratio: datalabMap.get(dateStr) || 0,
+        }));
+        
+        const sumRatios = filledDatalab.reduce((acc, cur) => acc + cur.ratio, 0);
+        
+        setRatioRows(filledDatalab.map((row) => ({
+          period: row.period.substr(5, 5),
+          dailyAmount: sumRatios > 0 ? Math.floor(monthlySumQcCnt * row.ratio / sumRatios) : 0,
+          ratio: row.ratio,
+        })));
       }
-      
-      const filledDatalab: { period: string, ratio: number }[] = allDates.map(dateStr => ({
-        period: dateStr,
-        ratio: datalabMap.get(dateStr) || 0,
-      }));
-      
-      const sumRatios = filledDatalab.reduce((acc, cur) => acc + cur.ratio, 0);
-      
-      setRatioRows(filledDatalab.map((row) => ({
-        period: row.period.substr(5, 5),
-        dailyAmount: sumRatios > 0 ? Math.floor(monthlySumQcCnt * row.ratio / sumRatios) : 0,
-        ratio: row.ratio,
-      })));
-      
-      const res4 = await axios.get(`/api/list_4?keyword_give=${encodeURIComponent(searchKeyword)}`);
-      setAutoKeywords((res4.data.auto_keyword || []).map((k: any) => typeof k === 'string' ? k : String(k)));
+
+      // Process and set auto keywords
+      if (autoKeywordsRes.data) {
+        setAutoKeywords((autoKeywordsRes.data.auto_keyword || []).map((k: any) => typeof k === 'string' ? k : String(k)));
+      }
+
     } catch (err: any) {
-      if (err.response && err.response.data && err.response.data.error) {
-        setError(`서버 오류: ${err.response.data.error}`);
-      } else {
-        setError('데이터를 가져오는 중 오류가 발생했습니다.');
-      }
+      setError(`데이터를 가져오는 중 오류가 발생했습니다: ${err.message}`);
     } finally {
       setIsLoading(false);
     }
