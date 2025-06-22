@@ -3,7 +3,7 @@
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/": "pages/index.js",
-  "/keyword-analyzer": "pages/keyword-analyzer.js",
-  "/realtime-keywords": "pages/realtime-keywords.js",
-  "/api/realtime-keywords": "pages/api/realtime-keywords.js"
+  "/api/realtime-keywords": "pages/api/realtime-keywords.js",
+  "/news-analyzer": "pages/news-analyzer.js",
+  "/realtime-keywords": "pages/realtime-keywords.js"
 }
