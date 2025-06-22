@@ -8,6 +8,7 @@ import {
   FaSearch,
   FaCalculator,
   FaNewspaper,
+  FaChartLine,
 } from 'react-icons/fa'
 
 const tools = [
@@ -17,6 +18,7 @@ const tools = [
   { name: '키워드 분석기', href: '/keyword-analyzer', description: '네이버 키워드 관련 데이터를 분석합니다.', icon: <FaSearch /> },
   { name: '연봉 계산기', href: '/salary-calculator', description: '연봉 실 수령액을 계산합니다.', icon: <FaCalculator /> },
   { name: '뉴스 분석기', href: '/news-analyzer', description: '뉴스 기사를 분석하고 요약합니다.', icon: <FaNewspaper /> },
+  { name: '실시간 검색어', href: '/realtime-keywords', description: 'Nate, Zum, Google의 실시간 트렌드를 확인합니다.', icon: <FaChartLine /> },
 ]
 
 const Home: NextPage = () => {

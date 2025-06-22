@@ -9,6 +9,7 @@ const navLinks = [
   { name: '키워드 분석기', href: '/keyword-analyzer' },
   { name: '연봉 계산기', href: '/salary-calculator' },
   { name: '뉴스 분석기', href: '/news-analyzer' },
+  { name: '실시간 검색어', href: '/realtime-keywords' },
 ];
 
 export default function Navigation() {
