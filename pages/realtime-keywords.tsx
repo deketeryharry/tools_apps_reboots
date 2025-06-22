@@ -22,8 +22,8 @@ const getSearchUrl = (platform: string, keyword: string) => {
   }
 };
 
-const KeywordList = ({ title, keywords, isLoading }: { title: string; keywords: string[]; isLoading: boolean; }) => (
-  <div className="keyword-card">
+const KeywordList = ({ title, keywords, isLoading, platform }: { title: string; keywords: string[]; isLoading: boolean; platform: 'nate' | 'zum' | 'google' }) => (
+  <div className={`keyword-card ${platform}`}>
     <h2 className="card-title">{title}</h2>
     <ul className="keyword-list">
       {isLoading
@@ -81,60 +81,76 @@ export default function RealtimeKeywords() {
           </p>
         </div>
         <div className="grid-container">
-          <KeywordList title="네이트" keywords={keywords?.nate || []} isLoading={isLoading} />
-          <KeywordList title="줌" keywords={keywords?.zum || []} isLoading={isLoading} />
-          <KeywordList title="구글" keywords={keywords?.google || []} isLoading={isLoading} />
+          <KeywordList title="네이트" platform="nate" keywords={keywords?.nate || []} isLoading={isLoading} />
+          <KeywordList title="줌" platform="zum" keywords={keywords?.zum || []} isLoading={isLoading} />
+          <KeywordList title="구글" platform="google" keywords={keywords?.google || []} isLoading={isLoading} />
         </div>
       </div>
-      <style jsx>{`
+      <style jsx global>{`
+        /* General */
         .container {
-          padding: 2rem 1.5rem 4rem;
-          background-color: #f8f9fa;
+          padding: 3rem 1.5rem 6rem;
+          background-color: #f7f8fa; /* A slightly different, clean background */
+          min-height: 100vh;
         }
+
+        /* Title Section */
         .title-section {
           max-width: 1200px;
-          margin: 0 auto 3.5rem;
+          margin: 0 auto 4.5rem;
           text-align: center;
         }
         .main-title {
-          font-size: 2.5rem;
-          font-weight: 800;
-          color: #212529;
-          margin-bottom: 0.75rem;
+          font-size: 3rem;
+          font-weight: 900; /* Bolder */
+          color: #1a1a1a;
+          margin-bottom: 1rem;
         }
         .subtitle {
-          font-size: 1.1rem;
-          color: #495057;
+          font-size: 1.125rem;
+          color: #666;
         }
         .timestamp {
           font-size: 0.9rem;
-          color: #868e96;
+          color: #888;
           display: block;
-          margin-top: 0.75rem;
+          margin-top: 1rem;
         }
+
+        /* Grid & Cards */
         .grid-container {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 2rem;
+          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+          gap: 2.5rem;
           max-width: 1200px;
           margin: 0 auto;
         }
         .keyword-card {
           background: #ffffff;
-          border-radius: 12px;
-          padding: 2rem;
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-          border: 1px solid #e9ecef;
+          border-radius: 16px;
+          padding: 2.5rem; /* More padding */
+          box-shadow: 0 10px 35px rgba(0, 0, 0, 0.07);
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          border-top: 4px solid; /* Colored top border for distinction */
+        }
+        /* --- Card-specific Colors --- */
+        .keyword-card.nate { border-color: #00c73c; /* Nate Green */ }
+        .keyword-card.zum { border-color: #eb4e28; /* Zum Red */ }
+        .keyword-card.google { border-color: #4285f4; /* Google Blue */ }
+
+        .keyword-card:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 15px 45px rgba(0, 0, 0, 0.1);
         }
         .card-title {
-          font-size: 1.5rem;
-          font-weight: 700;
+          font-size: 1.75rem; /* Larger card title */
+          font-weight: 800;
           text-align: center;
-          margin: 0 0 2rem 0;
-          padding-bottom: 1rem;
-          border-bottom: 2px solid #e9ecef;
-          color: #343a40;
+          margin: 0 0 2.5rem 0;
+          color: #333;
         }
+
+        /* Keyword List */
         .keyword-list {
           list-style: none;
           padding: 0;
@@ -143,64 +159,79 @@ export default function RealtimeKeywords() {
         .keyword-list li a {
           display: flex;
           align-items: center;
-          padding: 0.8rem 0.5rem;
-          border-radius: 8px;
+          padding: 0.9rem 0.6rem;
+          border-radius: 10px;
           text-decoration: none;
-          transition: background-color 0.2s ease, color 0.2s ease;
+          transition: background-color 0.2s ease, transform 0.2s ease;
           color: inherit;
         }
+
+        /* --- Hover effects with colors --- */
+        .keyword-card.nate .keyword-list li a:hover { background-color: #e6f9ec; }
+        .keyword-card.zum .keyword-list li a:hover { background-color: #fdf0ed; }
+        .keyword-card.google .keyword-list li a:hover { background-color: #ebf4ff; }
+        
         .keyword-list li a:hover {
-          background-color: #eef5ff;
+          transform: translateX(5px);
         }
+        
         .keyword-list li a:hover .keyword-text {
-          color: #3182f6;
-          font-weight: 600;
+          font-weight: 700;
         }
+        .keyword-card.nate .keyword-list li a:hover .keyword-text { color: #008a29; }
+        .keyword-card.zum .keyword-list li a:hover .keyword-text { color: #c83a1a; }
+        .keyword-card.google .keyword-list li a:hover .keyword-text { color: #2a75e6; }
+        
         .rank {
-          font-weight: 600;
-          font-style: italic;
-          color: #868e96;
-          width: 2.5rem;
-          text-align: left;
+          font-weight: 700;
+          color: #aaa;
+          width: 2.8rem;
           font-size: 1rem;
+          font-style: italic;
         }
         .keyword-text {
-          color: #495057;
+          color: #444;
           flex-grow: 1;
-          font-size: 1rem;
+          font-size: 1.05rem;
           font-weight: 500;
           transition: all 0.2s ease;
         }
         .link-icon {
-          color: #ced4da;
-          font-size: 0.8rem;
-          opacity: 0;
+          color: #ccc;
+          font-size: 0.85rem;
+          opacity: 0.5;
           transition: all 0.2s ease;
         }
         .keyword-list li a:hover .link-icon {
           opacity: 1;
-          color: #3182f6;
+          transform: scale(1.1);
         }
+        .keyword-card.nate .keyword-list li a:hover .link-icon { color: #00c73c; }
+        .keyword-card.zum .keyword-list li a:hover .link-icon { color: #eb4e28; }
+        .keyword-card.google .keyword-list li a:hover .link-icon { color: #4285f4; }
+        
+
+        /* Loading / No Data States */
         .skeleton-item, .no-data {
-          height: 2.8rem;
-          border-radius: 8px;
-          margin-bottom: 0.75rem;
+          height: 3rem;
+          border-radius: 10px;
+          margin-bottom: 0.8rem;
         }
         .skeleton-item {
-          background-color: #f1f3f5;
+          background-color: #f0f0f0;
           animation: skeleton-loading 1.5s infinite ease-in-out;
         }
         .no-data {
           display: flex;
           justify-content: center;
           align-items: center;
-          color: #adb5bd;
-          background-color: #f8f9fa;
+          color: #999;
+          background-color: #f7f8fa;
+          font-weight: 500;
         }
         @keyframes skeleton-loading {
-          0% { background-color: #f1f3f5; }
-          50% { background-color: #e9ecef; }
-          100% { background-color: #f1f3f5; }
+          0%, 100% { background-color: #f0f0f0; }
+          50% { background-color: #e0e0e0; }
         }
       `}</style>
     </>
