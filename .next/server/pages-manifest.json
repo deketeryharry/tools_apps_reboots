@@ -3,6 +3,7 @@
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/keyword-analyzer": "pages/keyword-analyzer.js",
-  "/lotto-generator": "pages/lotto-generator.js",
-  "/news-analyzer": "pages/news-analyzer.js"
+  "/random-selector": "pages/random-selector.js",
+  "/": "pages/index.js",
+  "/word-counter": "pages/word-counter.js"
 }

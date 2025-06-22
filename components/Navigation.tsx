@@ -14,46 +14,86 @@ const navLinks = [
 export default function Navigation() {
   const router = useRouter();
   return (
-    <nav style={{
-      width: '100%',
-      background: '#fff',
-      borderBottom: '1px solid #e5e8eb',
-      marginBottom: 32,
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      zIndex: 100,
-      height: 56,
-      boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-    }}>
-      <div style={{
-        maxWidth: 900,
-        margin: '0 auto',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
+    <>
+      <style jsx>{`
+        .nav-container {
+          max-width: 900px;
+          margin: 0 auto;
+          display: flex;
+          align-items: center;
+          height: 56px;
+          padding: 0 16px;
+          box-sizing: border-box;
+        }
+        .nav-title {
+          font-weight: 700;
+          font-size: 20px;
+          margin-right: 24px;
+          color: #191f28;
+        }
+        .nav-links {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          overflow-x: auto;
+          -ms-overflow-style: none; /* IE and Edge */
+          scrollbar-width: none; /* Firefox */
+        }
+        .nav-links::-webkit-scrollbar {
+          display: none; /* Chrome, Safari and Opera */
+        }
+        @media (max-width: 768px) {
+          .nav-title {
+            font-size: 18px;
+            margin-right: 12px;
+            white-space: nowrap;
+          }
+          .nav-container {
+            gap: 0;
+          }
+        }
+        @media (max-width: 600px) {
+          .nav-title {
+            display: none;
+          }
+        }
+      `}</style>
+      <nav style={{
+        width: '100%',
+        background: '#fff',
+        borderBottom: '1px solid #e5e8eb',
+        marginBottom: 32,
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        zIndex: 100,
         height: 56,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
       }}>
-        <span style={{ fontWeight: 700, fontSize: 20, marginRight: 24, color: '#191f28' }}>해리의 UtilityTools</span>
-        {navLinks.map(item => (
-          <Link
-            key={item.href}
-            href={item.href}
-            style={{
-              padding: '8px 16px',
-              borderRadius: 8,
-              color: router.pathname === item.href ? '#fff' : '#191f28',
-              background: router.pathname === item.href ? '#3182f6' : 'transparent',
-              fontWeight: 500,
-              textDecoration: 'none',
-              transition: 'background 0.2s',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {item.name}
-          </Link>
-        ))}
-      </div>
-    </nav>
+        <div className="nav-container">
+          <span className="nav-title">해리의 UtilityTools</span>
+          <div className="nav-links">
+            {navLinks.map(item => (
+              <Link
+                key={item.href}
+                href={item.href}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: 8,
+                  color: router.pathname === item.href ? '#fff' : '#191f28',
+                  background: router.pathname === item.href ? '#3182f6' : 'transparent',
+                  fontWeight: 500,
+                  textDecoration: 'none',
+                  transition: 'background 0.2s',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </nav>
+    </>
   );
 } 
