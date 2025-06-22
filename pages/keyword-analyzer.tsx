@@ -78,7 +78,7 @@ export default function KeywordAnalyzer() {
       setBlogRows(data.blog_pc_10 || []);
       
       const datalab = data.datalab_30?.results?.[0]?.data || [];
-      const datalabMap = new Map(datalab.map((item: any) => [item.period, item.ratio]));
+      const datalabMap: Map<string, number> = new Map(datalab.map((item: any) => [item.period, item.ratio]));
       
       const allDates = [];
       for (let i = 0; i < 30; i++) {
@@ -87,14 +87,14 @@ export default function KeywordAnalyzer() {
         allDates.push(date.toISOString().split('T')[0]);
       }
       
-      const filledDatalab = allDates.map(dateStr => ({
+      const filledDatalab: { period: string, ratio: number }[] = allDates.map(dateStr => ({
         period: dateStr,
         ratio: datalabMap.get(dateStr) || 0,
       }));
       
       const sumRatios = filledDatalab.reduce((acc, cur) => acc + cur.ratio, 0);
       
-      setRatioRows(filledDatalab.map((row: any) => ({
+      setRatioRows(filledDatalab.map((row) => ({
         period: row.period.substr(5, 5),
         dailyAmount: sumRatios > 0 ? Math.floor(monthlySumQcCnt * row.ratio / sumRatios) : 0,
         ratio: row.ratio,
