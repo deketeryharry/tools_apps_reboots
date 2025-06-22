@@ -31,11 +31,6 @@
       "static/chunks/webpack.js",
       "static/chunks/main.js",
       "static/chunks/pages/news-analyzer.js"
-    ],
-    "/salary-calculator": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/salary-calculator.js"
     ]
   },
   "ampFirstPages": []

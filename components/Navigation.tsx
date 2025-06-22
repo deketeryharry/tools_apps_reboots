@@ -1,14 +1,14 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-const navItems = [
-  { href: '/', label: '홈' },
-  { href: '/random-picker', label: '랜덤 선택기' },
-  { href: '/character-counter', label: '문자 수 세기' },
-  { href: '/lotto-generator', label: '로또 추첨기' },
-  { href: '/keyword-analyzer', label: '키워드 분석기' },
-  { href: '/salary-calculator', label: '연봉 계산기' },
-  { href: '/news-analyzer', label: '뉴스 분석기' },
+const navLinks = [
+  { name: '홈', href: '/' },
+  { name: '당첨자 추출기', href: '/random-selector' },
+  { name: '글자수세기', href: '/word-counter' },
+  { name: '로또 추첨기', href: '/lotto' },
+  { name: '키워드 분석기', href: '/keyword-analyzer' },
+  { name: '연봉 계산기', href: '/salary-calculator' },
+  { name: '뉴스 분석기', href: '/news-analyzer' },
 ];
 
 export default function Navigation() {
@@ -35,7 +35,7 @@ export default function Navigation() {
         height: 56,
       }}>
         <span style={{ fontWeight: 700, fontSize: 20, marginRight: 24, color: '#191f28' }}>해리의 UtilityTools</span>
-        {navItems.map(item => (
+        {navLinks.map(item => (
           <Link
             key={item.href}
             href={item.href}
@@ -50,7 +50,7 @@ export default function Navigation() {
               whiteSpace: 'nowrap',
             }}
           >
-            {item.label}
+            {item.name}
           </Link>
         ))}
       </div>
