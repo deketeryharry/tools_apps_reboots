@@ -2,7 +2,9 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/api/realtime-keywords": "pages/api/realtime-keywords.js",
   "/realtime-keywords": "pages/realtime-keywords.js",
-  "/random-selector": "pages/random-selector.js"
+  "/news-analyzer": "pages/news-analyzer.js",
+  "/random-selector": "pages/random-selector.js",
+  "/api/realtime-keywords": "pages/api/realtime-keywords.js",
+  "/": "pages/index.js"
 }

@@ -6,7 +6,6 @@ import { FaExternalLinkAlt } from 'react-icons/fa';
 interface Keywords {
   nate: string[];
   zum: string[];
-  google: string[];
 }
 
 const getSearchUrl = (platform: string, keyword: string) => {
@@ -15,14 +14,12 @@ const getSearchUrl = (platform: string, keyword: string) => {
       return `https://search.nate.com/search/all?q=${encodeURIComponent(keyword)}`;
     case '줌':
       return `https://search.zum.com/search.zum?query=${encodeURIComponent(keyword)}`;
-    case '구글':
-      return `https://www.google.com/search?q=${encodeURIComponent(keyword)}`;
     default:
       return '#';
   }
 };
 
-const KeywordList = ({ title, keywords, isLoading, platform }: { title: string; keywords: string[]; isLoading: boolean; platform: 'nate' | 'zum' | 'google' }) => (
+const KeywordList = ({ title, keywords, isLoading, platform }: { title: string; keywords: string[]; isLoading: boolean; platform: 'nate' | 'zum' }) => (
   <div className={`keyword-card ${platform}`}>
     <h2 className="card-title">{title}</h2>
     <ul className="keyword-list">
@@ -70,7 +67,7 @@ export default function RealtimeKeywords() {
     <>
       <Head>
         <title>실시간 검색어 - 해리의 UtilityTools</title>
-        <meta name="description" content="Nate, Zum, Google의 실시간 검색어 순위를 확인하세요." />
+        <meta name="description" content="Nate, Zum의 실시간 검색어 순위를 확인하세요." />
       </Head>
       <div className="container">
         <div className="title-section">
@@ -83,7 +80,6 @@ export default function RealtimeKeywords() {
         <div className="grid-container">
           <KeywordList title="네이트" platform="nate" keywords={keywords?.nate || []} isLoading={isLoading} />
           <KeywordList title="줌" platform="zum" keywords={keywords?.zum || []} isLoading={isLoading} />
-          <KeywordList title="구글" platform="google" keywords={keywords?.google || []} isLoading={isLoading} />
         </div>
       </div>
       <style jsx global>{`
@@ -122,7 +118,7 @@ export default function RealtimeKeywords() {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
           gap: 2.5rem;
-          max-width: 1200px;
+          max-width: 800px; /* Adjusted max-width for 2 cards */
           margin: 0 auto;
         }
         .keyword-card {
@@ -136,7 +132,6 @@ export default function RealtimeKeywords() {
         /* --- Card-specific Colors --- */
         .keyword-card.nate { border-color: #00c73c; /* Nate Green */ }
         .keyword-card.zum { border-color: #eb4e28; /* Zum Red */ }
-        .keyword-card.google { border-color: #4285f4; /* Google Blue */ }
 
         .keyword-card:hover {
           transform: translateY(-8px);
@@ -169,7 +164,6 @@ export default function RealtimeKeywords() {
         /* --- Hover effects with colors --- */
         .keyword-card.nate .keyword-list li a:hover { background-color: #e6f9ec; }
         .keyword-card.zum .keyword-list li a:hover { background-color: #fdf0ed; }
-        .keyword-card.google .keyword-list li a:hover { background-color: #ebf4ff; }
         
         .keyword-list li a:hover {
           transform: translateX(5px);
@@ -180,7 +174,6 @@ export default function RealtimeKeywords() {
         }
         .keyword-card.nate .keyword-list li a:hover .keyword-text { color: #008a29; }
         .keyword-card.zum .keyword-list li a:hover .keyword-text { color: #c83a1a; }
-        .keyword-card.google .keyword-list li a:hover .keyword-text { color: #2a75e6; }
         
         .rank {
           font-weight: 700;
@@ -202,13 +195,8 @@ export default function RealtimeKeywords() {
           opacity: 0.5;
           transition: all 0.2s ease;
         }
-        .keyword-list li a:hover .link-icon {
-          opacity: 1;
-          transform: scale(1.1);
-        }
         .keyword-card.nate .keyword-list li a:hover .link-icon { color: #00c73c; }
         .keyword-card.zum .keyword-list li a:hover .link-icon { color: #eb4e28; }
-        .keyword-card.google .keyword-list li a:hover .link-icon { color: #4285f4; }
         
 
         /* Loading / No Data States */

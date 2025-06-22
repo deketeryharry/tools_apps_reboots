@@ -2,7 +2,6 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import iconv from 'iconv-lite';
-import googleTrends from 'google-trends-api';
 
 const cleanKeyword = (keyword: string) => {
   // Removes leading digits and any non-letter/number characters at the start.
@@ -43,23 +42,14 @@ async function getZumKeywords() {
   }
 }
 
-async function getGoogleKeywords() {
-  try {
-    const response = await googleTrends.dailyTrends({ geo: 'KR', hl: 'ko' });
-    const trends = JSON.parse(response);
-    return trends.default.trendingSearchesDays[0].trendingSearches.map((t: any) => t.title.query).slice(0, 10);
-  } catch (err) {
-    console.error('Error fetching Google keywords:', err);
-    return [];
-  }
-}
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const [nate, zum, google] = await Promise.all([
+  const results = await Promise.allSettled([
     getNateKeywords(),
     getZumKeywords(),
-    getGoogleKeywords(),
   ]);
 
-  res.status(200).json({ nate, zum, google });
+  const nate = results[0].status === 'fulfilled' ? results[0].value : [];
+  const zum = results[1].status === 'fulfilled' ? results[1].value : [];
+
+  res.status(200).json({ nate, zum });
 } 
