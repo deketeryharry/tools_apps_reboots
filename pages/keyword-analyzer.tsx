@@ -49,12 +49,16 @@ export default function KeywordAnalyzer() {
         ...prev
       ]);
       setKeyword10Rows(
-        (data.keyword_amount_10 || []).map((row: any) => ({
-          relKeyword: row.relKeyword,
-          monthlyPcQcCnt: parseSearchCount(row.monthlyPcQcCnt),
-          monthlyMobileQcCnt: parseSearchCount(row.monthlyMobileQcCnt),
-          monthlySumQcCnt: parseSearchCount(row.monthlyPcQcCnt) + parseSearchCount(row.monthlyMobileQcCnt),
-        }))
+        (data.keyword_amount_10 || []).map((row: any) => {
+          const monthlyPcQcCnt = parseSearchCount(row.monthlyPcQcCnt);
+          const monthlyMobileQcCnt = parseSearchCount(row.monthlyMobileQcCnt);
+          return {
+            relKeyword: row.relKeyword,
+            monthlyPcQcCnt,
+            monthlyMobileQcCnt,
+            monthlySumQcCnt: monthlyPcQcCnt + monthlyMobileQcCnt,
+          };
+        })
       );
       const tap_order_pc = data.vwjs_PC || {};
       const tap_order_mo = data.vwjs_MO || {};
@@ -72,13 +76,30 @@ export default function KeywordAnalyzer() {
       }
       setTabOrderRows(tabRows);
       setBlogRows(data.blog_pc_10 || []);
+      
       const datalab = data.datalab_30?.results?.[0]?.data || [];
-      const sumRatios = datalab.reduce((acc: number, cur: any) => acc + cur.ratio, 0);
-      setRatioRows(datalab.map((row: any) => ({
+      const datalabMap = new Map(datalab.map((item: any) => [item.period, item.ratio]));
+      
+      const allDates = [];
+      for (let i = 0; i < 30; i++) {
+        const date = new Date();
+        date.setDate(date.getDate() - 1 - i);
+        allDates.push(date.toISOString().split('T')[0]);
+      }
+      
+      const filledDatalab = allDates.map(dateStr => ({
+        period: dateStr,
+        ratio: datalabMap.get(dateStr) || 0,
+      }));
+      
+      const sumRatios = filledDatalab.reduce((acc, cur) => acc + cur.ratio, 0);
+      
+      setRatioRows(filledDatalab.map((row: any) => ({
         period: row.period.substr(5, 5),
-        dailyAmount: Math.floor(monthlySumQcCnt * row.ratio / sumRatios),
+        dailyAmount: sumRatios > 0 ? Math.floor(monthlySumQcCnt * row.ratio / sumRatios) : 0,
         ratio: row.ratio,
       })));
+      
       const res4 = await axios.get(`/api/list_4?keyword_give=${encodeURIComponent(searchKeyword)}`);
       setAutoKeywords((res4.data.auto_keyword || []).map((k: any) => typeof k === 'string' ? k : String(k)));
     } catch (err: any) {
@@ -96,7 +117,6 @@ export default function KeywordAnalyzer() {
     setKeywordRows(rows => rows.filter((_, i) => i !== idx));
   };
 
-  // 표 스타일 공통 객체
   const tableStyle = {
     width: '100%',
     borderCollapse: 'separate' as const,
@@ -122,23 +142,23 @@ export default function KeywordAnalyzer() {
     textAlign: 'center' as const,
     borderBottom: '1px solid #e5e8eb',
     background: '#fff',
-    fontSize: 13,
+    fontSize: '12px',
   };
   const trHover = {
     transition: 'background 0.15s',
     height: 32,
   };
-  // 게이지 색상 함수
+
   function getGaugeColor(percent: number) {
-    if (percent < 0.6) return '#ef4444'; // 빨강
-    if (percent < 0.85) return '#facc15'; // 노랑
-    return '#22c55e'; // 초록
+    if (percent < 0.6) return '#ef4444'; 
+    if (percent < 0.85) return '#facc15'; 
+    return '#22c55e';
   }
-  // 날짜별 조회량 게이지 최대값 계산
+
   const maxRatio = ratioRows.length > 0 ? Math.max(...ratioRows.map((row: any) => row.ratio)) : 1;
 
   return (
-    <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 0 60px 0', fontSize: 14, color: 'var(--foreground)', background: 'var(--background)', fontFamily: 'inherit' }}>
+    <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 20px 60px 20px', fontSize: 14, color: 'var(--foreground)', background: 'var(--background)', fontFamily: 'inherit' }}>
       <div style={{ display: 'flex', gap: 32 }}>
         <div style={{ flex: 2 }}>
           <h1 style={{ color: 'var(--foreground)' }}>키워드 분석기</h1>
@@ -159,12 +179,12 @@ export default function KeywordAnalyzer() {
             <thead>
               <tr>
                 <th style={{ ...thStyle, width: '5%' }}>-</th>
-                <th style={{ ...thStyle, width: '17%' }}>키워드</th>
+                <th style={{ ...thStyle, width: '18%' }}>키워드</th>
                 <th style={{ ...thStyle, width: '10%' }}>PC</th>
                 <th style={{ ...thStyle, width: '10%' }}>MO</th>
                 <th style={{ ...thStyle, width: '12%' }}>SUM</th>
-                <th style={{ ...thStyle, width: '12%' }}>DOC</th>
-                <th style={{ ...thStyle, width: '20%' }}>PC top10</th>
+                <th style={{ ...thStyle, width: '15%' }}>DOC</th>
+                <th style={{ ...thStyle, width: '15%' }}>PC top10</th>
               </tr>
             </thead>
             <tbody>
@@ -176,11 +196,11 @@ export default function KeywordAnalyzer() {
                     </button>
                   </td>
                   <td style={tdStyle}>{row.relKeyword || keyword.replace(/\s/g, '')}</td>
-                  <td style={tdStyle}>{Math.max(Number(row.monthlyPcQcCnt), 10).toLocaleString()}</td>
-                  <td style={tdStyle}>{Math.max(Number(row.monthlyMobileQcCnt), 10).toLocaleString()}</td>
-                  <td style={tdStyle}>{(Math.max(Number(row.monthlyPcQcCnt), 10) + Math.max(Number(row.monthlyMobileQcCnt), 10)).toLocaleString()}</td>
+                  <td style={tdStyle}>{Number(row.monthlyPcQcCnt).toLocaleString()}</td>
+                  <td style={tdStyle}>{Number(row.monthlyMobileQcCnt).toLocaleString()}</td>
+                  <td style={tdStyle}>{(Number(row.monthlyPcQcCnt) + Number(row.monthlyMobileQcCnt)).toLocaleString()}</td>
                   <td style={tdStyle}>{Number(row.totalDoc).toLocaleString()}</td>
-                  <td style={{ ...tdStyle, letterSpacing: 2 }}>{row.blogPcType.split('').map((c: string, i: number) => c === 'N' ? <span key={i} style={{ color: '#22c55e', fontWeight: 700 }}>N</span> : c).reduce((a: any, b: any) => [a, b])}</td>
+                  <td style={{ ...tdStyle, letterSpacing: 2 }}>{row.blogPcType.split('').map((c: string, i: number) => c === 'N' ? <span key={i} style={{ color: '#22c55e', fontWeight: 700 }}>N</span> : c)}</td>
                 </tr>
               ))}
             </tbody>
@@ -209,9 +229,36 @@ export default function KeywordAnalyzer() {
                       {row.relKeyword}
                     </a>
                   </td>
-                  <td style={tdStyle}>{Math.max(Number(row.monthlyPcQcCnt), 10).toLocaleString()}</td>
-                  <td style={tdStyle}>{Math.max(Number(row.monthlyMobileQcCnt), 10).toLocaleString()}</td>
-                  <td style={tdStyle}>{(Math.max(Number(row.monthlyPcQcCnt), 10) + Math.max(Number(row.monthlyMobileQcCnt), 10)).toLocaleString()}</td>
+                  <td style={tdStyle}>{Number(row.monthlyPcQcCnt).toLocaleString()}</td>
+                  <td style={tdStyle}>{Number(row.monthlyMobileQcCnt).toLocaleString()}</td>
+                  <td style={tdStyle}>{(Number(row.monthlyPcQcCnt) + Number(row.monthlyMobileQcCnt)).toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <table style={tableStyle}>
+            <thead>
+              <tr>
+                <th style={thStyle} colSpan={4}>조회 키워드의 상위10 블로그</th>
+              </tr>
+              <tr>
+                <th style={{ ...thStyle, width: '20%' }}>블로그명</th>
+                <th style={{ ...thStyle, width: '8%' }}>출처</th>
+                <th style={{ ...thStyle, width: '57%' }}>제목</th>
+                <th style={{ ...thStyle, width: '15%' }}>발행일</th>
+              </tr>
+            </thead>
+            <tbody>
+              {blogRows.map((row, idx) => (
+                <tr key={idx} style={trHover} onMouseOver={e => (e.currentTarget.style.background = '#f4f6fa')} onMouseOut={e => (e.currentTarget.style.background = '#fff')}>
+                  <td style={tdStyle}>
+                    <a href={row.블로그링크} target="_blank" rel="noopener noreferrer">
+                      {row.블로그이름}
+                    </a>
+                  </td>
+                  <td style={tdStyle}>{row.블로그타입}</td>
+                  <td style={{...tdStyle, textAlign: 'left'}}>{row.블로그제목}</td>
+                  <td style={{...tdStyle, whiteSpace: 'nowrap'}}>{row.발행날짜}</td>
                 </tr>
               ))}
             </tbody>
@@ -234,33 +281,6 @@ export default function KeywordAnalyzer() {
               </tbody>
             </table>
           </div>
-          <table style={tableStyle}>
-            <thead>
-              <tr>
-                <th style={thStyle} colSpan={4}>조회 키워드의 상위10 블로그</th>
-              </tr>
-              <tr>
-                <th style={{ ...thStyle, width: '20%' }}>블로그명</th>
-                <th style={{ ...thStyle, width: '8%' }}>출처</th>
-                <th style={{ ...thStyle, width: '52%' }}>제목</th>
-                <th style={{ ...thStyle, width: '15%' }}>발행일</th>
-              </tr>
-            </thead>
-            <tbody>
-              {blogRows.map((row, idx) => (
-                <tr key={idx} style={trHover} onMouseOver={e => (e.currentTarget.style.background = '#f4f6fa')} onMouseOut={e => (e.currentTarget.style.background = '#fff')}>
-                  <td style={tdStyle}>
-                    <a href={row.블로그링크} target="_blank" rel="noopener noreferrer">
-                      {row.블로그이름}
-                    </a>
-                  </td>
-                  <td style={tdStyle}>{row.블로그타입}</td>
-                  <td style={tdStyle}>{row.블로그제목}</td>
-                  <td style={tdStyle}>{row.발행날짜}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
         <div style={{ flex: 1, background: 'var(--background)', borderRadius: 12, boxShadow: '0 2px 12px rgba(49, 130, 246, 0.06)', padding: '16px 10px 10px 10px', marginBottom: 18, color: 'var(--foreground)' }}>
           <h5 style={{ color: '#3182f6', fontSize: '1rem', fontWeight: 700, marginBottom: 10 }}>날짜 및 조회량</h5>
@@ -274,14 +294,14 @@ export default function KeywordAnalyzer() {
               </thead>
               <tbody>
                 {ratioRows.map((row, idx) => {
-                  const percent = row.ratio / maxRatio;
+                  const percent = maxRatio > 0 ? row.ratio / maxRatio : 0;
                   return (
                     <tr key={idx} style={trHover} onMouseOver={e => (e.currentTarget.style.background = '#f4f6fa')} onMouseOut={e => (e.currentTarget.style.background = '#fff')}>
                       <td style={tdStyle}>{row.period}</td>
-                      <td style={{ ...tdStyle, textAlign: 'left' }}>
-                        <span style={{ fontWeight: 600, marginRight: 8 }}>{row.dailyAmount.toLocaleString()}</span>
+                      <td style={{ ...tdStyle, textAlign: 'left', whiteSpace: 'nowrap' }}>
+                        <span style={{ fontWeight: 600, marginRight: 8, display: 'inline-block', minWidth: '4ch', textAlign: 'right' }}>{row.dailyAmount.toLocaleString()}</span>
                         <span style={{ display: 'inline-block', verticalAlign: 'middle', width: 80, height: 10, background: '#e5e8eb', borderRadius: 6, overflow: 'hidden', marginRight: 0 }}>
-                          <span style={{ display: 'inline-block', height: '100%', width: `${Math.round(percent * 100)}%`, background: getGaugeColor(percent), borderRadius: 6, transition: 'width 0.2s' }} />
+                          <span style={{ display: 'block', height: '100%', width: `${Math.round(percent * 100)}%`, background: getGaugeColor(percent), borderRadius: 6, transition: 'width 0.2s' }} />
                         </span>
                       </td>
                     </tr>

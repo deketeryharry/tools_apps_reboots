@@ -8,6 +8,7 @@ const navItems = [
   { href: '/lotto-generator', label: '로또 추첨기' },
   { href: '/keyword-analyzer', label: '키워드 분석기' },
   { href: '/salary-calculator', label: '연봉 계산기' },
+  { href: '/news-analyzer', label: '뉴스 분석기' },
 ];
 
 export default function Navigation() {
@@ -46,6 +47,7 @@ export default function Navigation() {
               fontWeight: 500,
               textDecoration: 'none',
               transition: 'background 0.2s',
+              whiteSpace: 'nowrap',
             }}
           >
             {item.label}

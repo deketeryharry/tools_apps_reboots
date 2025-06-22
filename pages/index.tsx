@@ -1,33 +1,62 @@
-import Link from 'next/link';
+import type { NextPage } from 'next'
+import Head from 'next/head'
+import Link from 'next/link'
 
-export default function Home() {
+const tools = [
+  { name: '랜덤 선택기', href: '/random-picker' },
+  { name: '문자 수 세기', href: '/character-counter' },
+  { name: '로또 추첨기', href: '/lotto-generator' },
+  { name: '키워드 분석기', href: '/keyword-analyzer' },
+  { name: '연봉 계산기', href: '/salary-calculator' },
+]
+
+const Home: NextPage = () => {
   return (
-    <div style={{ maxWidth: 600, margin: '48px auto', padding: 32, background: '#fff', borderRadius: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.04)', border: '1px solid #e5e8eb', display: 'flex', flexDirection: 'column', gap: 32 }}>
-      <div>
-        <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#191f28', marginBottom: '1.5rem', textAlign: 'center' }}>해리의 UtilityTools</h1>
-        <div style={{ color: '#4e5968', fontSize: '1.1rem', textAlign: 'center', marginBottom: '1.5rem' }}>이것저것 잡다한거 만들어 쓰는 페이지입니다.</div>
-      </div>
-      <Link href="/random-picker" style={linkBtnStyle}>랜덤 선택기 →</Link>
-      <Link href="/character-counter" style={linkBtnStyle}>문자 수 세기 →</Link>
-      <Link href="/lotto-generator" style={linkBtnStyle}>로또 추첨기 →</Link>
-      <Link href="/keyword-analyzer" style={linkBtnStyle}>키워드 분석기 →</Link>
-      <Link href="/salary-calculator" style={linkBtnStyle}>연봉 계산기 →</Link>
+    <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 20px 60px 20px' }}>
+      <Head>
+        <title>해리의 UtilityTools</title>
+        <meta name="description" content="다양한 유틸리티 도구 모음" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
+      <main>
+        <h1 style={{ textAlign: 'center', marginBottom: '40px' }}>Tools</h1>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+          gap: '20px',
+        }}>
+          {tools.map((tool) => (
+            <Link
+              key={tool.name}
+              href={tool.href}
+              style={{
+                display: 'block',
+                padding: '20px',
+                border: '1px solid #e5e8eb',
+                borderRadius: '8px',
+                textAlign: 'center',
+                textDecoration: 'none',
+                color: 'inherit',
+                transition: 'transform 0.2s, box-shadow 0.2s',
+                boxShadow: '0 2px 12px rgba(49,130,246,0.06)',
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.transform = 'translateY(-5px)';
+                e.currentTarget.style.boxShadow = '0 8px 20px rgba(49,130,246,0.12)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 2px 12px rgba(49,130,246,0.06)';
+              }}
+            >
+              <h2 style={{ fontSize: '1.25rem', marginBottom: '10px' }}>{tool.name}</h2>
+            </Link>
+          ))}
+        </div>
+      </main>
     </div>
-  );
+  )
 }
 
-const linkBtnStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: 20,
-  background: '#f9fafb',
-  borderRadius: 16,
-  border: '1px solid #e5e8eb',
-  color: '#191f28',
-  textDecoration: 'none',
-  fontWeight: 500,
-  marginBottom: 16,
-  fontSize: '1.1rem',
-  transition: 'background 0.2s, border 0.2s',
-}; 
+export default Home

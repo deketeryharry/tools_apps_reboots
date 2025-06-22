@@ -1,35 +1,39 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
+import { NextApiRequest, NextApiResponse } from 'next';
+import { createHmac } from 'crypto';
 import axios from 'axios';
 
-async function getAutoKeywords(keyword: string) {
-  const chosungList = ['', 'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
-  const randomChosung = chosungList.sort(() => Math.random() - 0.5).slice(0, 5);
-  try {
-    const promises = randomChosung.map(chosung => 
-      axios.get(`https://mac.search.naver.com/m/ac?q_enc=UTF-8&st=1&frm=mobile_nv&r_format=json&r_enc=UTF-8&r_unicode=0&t_koreng=1&q=${encodeURIComponent(keyword + ' ' + chosung)}`, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'
-        }
-      })
-    );
-    const responses = await Promise.all(promises);
-    const allKeywords = responses.flatMap(response => response.data.items);
-    const uniqueKeywords = [...new Set(allKeywords.flat())];
-    return uniqueKeywords;
-  } catch (error) {
-    throw error;
-  }
-}
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const { keyword_give: keyword } = req.query;
+
+  if (typeof keyword !== 'string') {
+    return res.status(400).json({ error: 'Keyword is required' });
+  }
+
+  const apiKey = process.env.NAVER_AD_API_KEY!;
+  const secretKey = process.env.NAVER_AD_SECRET_KEY!;
+  const customerId = process.env.NAVER_AD_CUSTOMER_ID!;
+  const timestamp = Date.now().toString();
+  const method = 'GET';
+  const uri = '/keywordstool';
+  const signature = createHmac('sha256', secretKey)
+    .update(`${timestamp}.${method}.${uri}`)
+    .digest('base64');
+
   try {
-    const keyword = req.query.keyword_give as string;
-    if (!keyword) {
-      return res.status(400).json({ error: 'No keyword provided' });
-    }
-    const autoKeywords = await getAutoKeywords(keyword);
-    res.json({ auto_keyword: autoKeywords });
-  } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    const response = await axios.get(`https://api.naver.com${uri}`, {
+      headers: {
+        'X-Timestamp': timestamp,
+        'X-API-KEY': apiKey,
+        'X-Customer': customerId,
+        'X-Signature': signature,
+      },
+      params: { hintKeywords: keyword, showDetail: 1 },
+    });
+
+    const keywords = response.data.keywordList.map((item: any) => item.relKeyword);
+    res.status(200).json({ auto_keyword: keywords });
+  } catch (error: any) {
+    console.error('Error fetching related keywords:', error.response?.data || error.message);
+    res.status(500).json({ error: 'Failed to fetch related keywords' });
   }
 } 

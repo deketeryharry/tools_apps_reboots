@@ -1,233 +1,146 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
+import { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import { createHmac } from 'crypto';
 
-async function getKeywordSearchCount(keyword: string) {
-  const API_KEY = process.env.NAVER_AD_API_KEY!;
-  const SECRET_KEY = process.env.NAVER_AD_SECRET_KEY!;
-  const CUSTOMER_ID = process.env.NAVER_AD_CUSTOMER_ID!;
-  const BASE_URL = 'https://api.naver.com';
-  const uri = '/keywordstool';
-  const method = 'GET';
-  const timestamp = String(Date.now());
-  const keywordNoSpace = keyword.replace(/\s/g, '');
-  const params = { hintKeywords: keywordNoSpace };
-  const message = `${timestamp}.${method}.${uri}`;
-  const crypto = await import('crypto');
-  const hmac = crypto.createHmac('sha256', SECRET_KEY);
-  hmac.update(message);
-  const signature = hmac.digest('base64');
+async function getNaverSearchData(keyword: string) {
+  const url = `https://openapi.naver.com/v1/search/blog.json?query=${encodeURIComponent(keyword)}&display=10`;
   const headers = {
-    'Content-Type': 'application/json; charset=UTF-8',
-    'X-Timestamp': timestamp,
-    'X-API-KEY': API_KEY,
-    'X-Customer': CUSTOMER_ID,
-    'X-Signature': signature,
+    'X-Naver-Client-Id': process.env.NAVER_SEARCH_CLIENT_ID!,
+    'X-Naver-Client-Secret': process.env.NAVER_SEARCH_CLIENT_SECRET!
   };
-  try {
-    const response = await axios.get(BASE_URL + uri, { params, headers });
-    const data = response.data;
-    const keywordList = data.keywordList || [];
-    const mainKeyword = keywordList.find((k: any) => k.relKeyword === keywordNoSpace) || keywordList[0] || {};
-    return [mainKeyword, keywordList.slice(0, 10)];
-  } catch (error) {
-    return [{}, []];
-  }
+  const response = await axios.get(url, { headers });
+  return response.data;
 }
 
-async function getDocsCount(keyword: string) {
-  const client_id = process.env.NAVER_BLOG_CLIENT_ID!;
-  const client_secret = process.env.NAVER_BLOG_CLIENT_SECRET!;
-  const url = `https://openapi.naver.com/v1/search/blog?query=${encodeURIComponent(keyword)}`;
+async function getRelKeywords(keyword: string) {
+  const url = 'https://api.naver.com/keywordstool';
+  const timestamp = new Date().getTime().toString();
+  const hmac = createHmac('sha256', process.env.NAVER_AD_SECRET_KEY!)
+    .update(`${timestamp}.GET./keywordstool`)
+    .digest('base64');
+  
+  const headers = {
+    'X-Timestamp': timestamp,
+    'X-API-KEY': process.env.NAVER_AD_API_KEY!,
+    'X-Customer': process.env.NAVER_AD_CUSTOMER_ID!,
+    'X-Signature': hmac,
+    'Content-Type': 'application/json'
+  };
+  
   try {
-    const response = await axios.get(url, {
-      headers: {
-        'X-Naver-Client-Id': client_id,
-        'X-Naver-Client-Secret': client_secret,
-      },
-    });
-    return { totaldoc: response.data.total || 0 };
-  } catch (error) {
-    return { totaldoc: 0 };
-  }
-}
-
-async function getBlogPC10(keyword: string) {
-  const client_id = process.env.NAVER_BLOG_CLIENT_ID!;
-  const client_secret = process.env.NAVER_BLOG_CLIENT_SECRET!;
-  const url = `https://openapi.naver.com/v1/search/blog?query=${encodeURIComponent(keyword)}`;
-  try {
-    const response = await axios.get(url, {
-      headers: {
-        'X-Naver-Client-Id': client_id,
-        'X-Naver-Client-Secret': client_secret,
-      },
-    });
-    return response.data.items.map((blog: any) => {
-      const link = blog.link;
-      const title = blog.title.replace(/<[^>]*>/g, '').trim();
-      let date = '';
-      if (blog.postdate && /^\d{8}$/.test(blog.postdate)) {
-        date = new Date(
-          blog.postdate.slice(0, 4) + '-' +
-          blog.postdate.slice(4, 6) + '-' +
-          blog.postdate.slice(6, 8)
-        ).toISOString().split('T')[0];
-      } else {
-        date = '';
+    const response = await axios.get(url, { 
+      headers,
+      params: {
+        siteId: '',
+        biztpId: '',
+        hintKeywords: keyword,
+        event: '',
+        month: '',
+        showDetail: '1'
       }
-      const bloggerName = blog.bloggername.slice(0, 6);
-      const blogType = link.includes('naver') ? 'N' :
-                      link.includes('tistory') ? 'T' :
-                      link.includes('daum') ? 'D' : 'E';
-      return {
-        블로그링크: link,
-        블로그제목: title,
-        발행날짜: date,
-        블로그타입: blogType,
-        블로그이름: bloggerName
-      };
     });
-  } catch (error) {
+    return response.data.keywordList || [];
+  } catch(e) {
+    console.error('Error fetching related keywords:', e);
     return [];
   }
 }
 
-async function getDatalabData(keyword: string) {
-  const client_id = process.env.NAVER_DATALAB_CLIENT_ID!;
-  const client_secret = process.env.NAVER_DATALAB_CLIENT_SECRET!;
+async function getVwjs(keyword: string, type: 'pc' | 'mo') {
+  const url = `https://m.search.naver.com/search.naver?sm=mtb_hty.top&where=m&oquery=${encodeURIComponent(keyword)}&tqi=hGaxVwp0J1sssCjc51Gssssss6w-085028&query=${encodeURIComponent(keyword)}`;
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        'User-Agent': type === 'pc' 
+          ? 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+          : 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1'
+      }
+    });
+    const html = response.data;
+    const $ = cheerio.load(html);
+    const scriptTag = $('script:contains("VIEW_JS")').html();
+    const match = scriptTag?.match(/var oView = (\{.*?\});/);
+    return match ? JSON.parse(match[1]) : {};
+  } catch (error) {
+    console.error(`Error fetching ${type} vwjs:`, error);
+    return {};
+  }
+}
+
+async function getDatalab(keyword: string) {
   const url = 'https://openapi.naver.com/v1/datalab/search';
-  const monthAgo = new Date();
-  monthAgo.setDate(monthAgo.getDate() - 30);
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  const body = {
-    startDate: monthAgo.toISOString().split('T')[0],
-    endDate: yesterday.toISOString().split('T')[0],
-    timeUnit: 'date',
-    keywordGroups: [
-      { groupName: keyword, keywords: [keyword] }
-    ],
+  const requestBody = {
+    "startDate": "2023-01-01",
+    "endDate": new Date().toISOString().split('T')[0],
+    "timeUnit": "date",
+    "keywordGroups": [
+      {
+        "groupName": keyword,
+        "keywords": [keyword]
+      }
+    ]
+  };
+  const headers = {
+    'X-Naver-Client-Id': process.env.NAVER_DATALAB_CLIENT_ID!,
+    'X-Naver-Client-Secret': process.env.NAVER_DATALAB_CLIENT_SECRET!,
+    'Content-Type': 'application/json'
   };
   try {
-    const response = await axios.post(url, body, {
-      headers: {
-        'X-Naver-Client-Id': client_id,
-        'X-Naver-Client-Secret': client_secret,
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await axios.post(url, requestBody, { headers });
     return response.data;
   } catch (error) {
-    return { results: [{ data: [] }] };
-  }
-}
-
-async function getTabOrderPC(keyword: string) {
-  try {
-    const response = await axios.get(`https://search.naver.com/search.naver?query=${encodeURIComponent(keyword)}`, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-      }
-    });
-    const $ = cheerio.load(response.data);
-    const sections: string[] = [];
-    $('.main_pack section h2').each((i, el) => {
-        let title = $(el).text().trim();
-        if(title) sections.push(title);
-    });
-    const result: Record<string, string|number> = {};
-    const tabsToFind = ['VIEW', '지식iN', '쇼핑', '뉴스', '동영상', '이미지', '블로그', '카페'];
-    tabsToFind.forEach(tab => {
-        const foundIndex = sections.findIndex(s => s.includes(tab));
-        result[tab] = foundIndex !== -1 ? foundIndex + 1 : 'X';
-    });
-    return result;
-  } catch (error) {
-    return {};
-  }
-}
-
-async function getTabOrderMO(keyword: string) {
-  try {
-    const response = await axios.get(`https://m.search.naver.com/search.naver?query=${encodeURIComponent(keyword)}`, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1'
-      }
-    });
-    const $ = cheerio.load(response.data);
-    const sections: string[] = [];
-     $('#container section h2').each((i, el) => {
-        let title = $(el).text().trim();
-        if(title) sections.push(title);
-    });
-    const result: Record<string, string|number> = {};
-    const tabsToFind = ['VIEW', '지식iN', '쇼핑', '뉴스', '동영상', '이미지', '블로그', '카페'];
-    tabsToFind.forEach(tab => {
-        const foundIndex = sections.findIndex(s => s.includes(tab));
-        result[tab] = foundIndex !== -1 ? foundIndex + 1 : 'X';
-    });
-    return result;
-  } catch (error) {
-    return {};
+    console.error('Error fetching datalab:', error);
+    return null;
   }
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const { keyword_give: keyword } = req.query;
+
+  if (typeof keyword !== 'string') {
+    return res.status(400).json({ error: 'Keyword is required' });
+  }
+
   try {
-    const keyword = req.query.keyword_give as string;
-    if (!keyword) {
-      return res.status(400).json({ error: 'No keyword provided' });
-    }
-    const [keywordAmountRaw, keywordAmount10Raw] = await getKeywordSearchCount(keyword);
-    console.log('NAVER_AD_API 응답:', keywordAmountRaw, keywordAmount10Raw);
-    const docsAmountRaw = await getDocsCount(keyword);
-    console.log('NAVER_BLOG_API 응답:', docsAmountRaw);
-    const blogPC10Raw = await getBlogPC10(keyword);
-    console.log('NAVER_BLOG_PC10 응답:', blogPC10Raw);
-    const datalab30Raw = await getDatalabData(keyword);
-    console.log('NAVER_DATALAB 응답:', datalab30Raw);
-    const vwjsPCRaw = await getTabOrderPC(keyword);
-    const vwjsMORaw = await getTabOrderMO(keyword);
-    const keywordAmount = keywordAmountRaw || {};
-    const relKeyword = keywordAmount.relKeyword || '';
-    const monthlyPcQcCnt = keywordAmount.monthlyPcQcCnt || 0;
-    const monthlyMobileQcCnt = keywordAmount.monthlyMobileQcCnt || 0;
-    const monthlySumQcCnt = monthlyPcQcCnt + monthlyMobileQcCnt;
-    const keywordAmount10 = Array.isArray(keywordAmount10Raw) ? keywordAmount10Raw : [];
-    const docsAmount = docsAmountRaw || {};
-    const totalDoc = docsAmount.totaldoc || 0;
-    const blogPC10 = Array.isArray(blogPC10Raw) ? blogPC10Raw : [];
-    const blogPcType = blogPC10.map((b: any) => b.블로그타입 || '').join('');
-    const datalab30 = datalab30Raw || { results: [{ data: [] }] };
-    const vwjsPC = vwjsPCRaw || {};
-    const vwjsMO = vwjsMORaw || {};
-    res.json({
-      debug: {
-        keywordAmountRaw,
-        keywordAmount10Raw,
-        docsAmountRaw,
-        blogPC10Raw,
-        datalab30Raw
-      },
+    const [naverSearchData, relKeywords, vwjsPC, vwjsMO, datalab30] = await Promise.all([
+      getNaverSearchData(keyword).catch(e => { console.error("Error in getNaverSearchData:", e.message); return null; }),
+      getRelKeywords(keyword).catch(e => { console.error("Error in getRelKeywords:", e.message); return []; }),
+      getVwjs(keyword, 'pc').catch(e => { console.error("Error in getVwjs (pc):", e.message); return {}; }),
+      getVwjs(keyword, 'mo').catch(e => { console.error("Error in getVwjs (mo):", e.message); return {}; }),
+      getDatalab(keyword).catch(e => { console.error("Error in getDatalab:", e.message); return null; })
+    ]);
+    
+    const keywordAmount = (relKeywords?.find((k: any) => k.relKeyword === keyword.replace(/\s/g, '')) || {});
+    
+    const processedBlogData = naverSearchData?.items.map((blog: any) => {
+      const link = blog.link;
+      const blogType = link.includes('naver.com') ? 'N' :
+                       link.includes('tistory.com') ? 'T' :
+                       link.includes('daum.net') ? 'D' : 'E';
+      return {
+        ...blog,
+        블로그링크: blog.link,
+        블로그제목: blog.title.replace(/<[^>]*>/g, '').trim(),
+        발행날짜: blog.postdate ? `${blog.postdate.slice(0,4)}-${blog.postdate.slice(4,6)}-${blog.postdate.slice(6,8)}` : '',
+        블로그타입: blogType,
+        블로그이름: blog.bloggername,
+      };
+    }) || [];
+
+    res.status(200).json({
       keyword_amount: {
-        relKeyword,
-        monthlyPcQcCnt,
-        monthlyMobileQcCnt,
-        monthlySumQcCnt
+        ...keywordAmount,
+        relKeyword: keyword
       },
-      keyword_amount_10: keywordAmount10,
-      docs_amount: { totaldoc: totalDoc },
-      blog_pc_10: blogPC10,
-      vwjs_PC: vwjsPC,
-      vwjs_MO: vwjsMO,
-      datalab_30: datalab30
+      keyword_amount_10: relKeywords || [],
+      docs_amount: { totaldoc: naverSearchData?.total || 0 },
+      blog_pc_10: processedBlogData,
+      vwjs_PC: vwjsPC || {},
+      vwjs_MO: vwjsMO || {},
+      datalab_30: datalab30,
     });
   } catch (error: any) {
-    if (axios.isAxiosError(error)) {
-      console.error('NAVER API ERROR:', error.response?.data || error.message);
-      return res.status(500).json({ error: error.message, naver: error.response?.data });
-    }
-    res.status(500).json({ error: error.message || 'An unexpected error occurred.', debug: error });
+    res.status(500).json({ error: 'Failed to fetch data', details: error.message });
   }
 } 

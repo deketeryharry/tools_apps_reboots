@@ -22,20 +22,20 @@
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/character-counter": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/character-counter.js"
-    ],
     "/keyword-analyzer": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
       "static/chunks/pages/keyword-analyzer.js"
     ],
-    "/lotto-generator": [
+    "/news-analyzer": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/lotto-generator.js"
+      "static/chunks/pages/news-analyzer.js"
+    ],
+    "/salary-calculator": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/salary-calculator.js"
     ]
   },
   "ampFirstPages": []

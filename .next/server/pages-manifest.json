@@ -2,6 +2,11 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
+  "/lotto-generator": "pages/lotto-generator.js",
   "/keyword-analyzer": "pages/keyword-analyzer.js",
-  "/lotto-generator": "pages/lotto-generator.js"
+  "/salary-calculator": "pages/salary-calculator.js",
+  "/api/list_1": "pages/api/list_1.js",
+  "/api/list_4": "pages/api/list_4.js",
+  "/news-analyzer": "pages/news-analyzer.js",
+  "/api/news-api": "pages/api/news-api.js"
 }
