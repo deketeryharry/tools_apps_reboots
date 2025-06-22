@@ -38,12 +38,21 @@ export default function KeywordAnalyzer() {
     setKeyword10Rows([]);
     
     try {
-      // Step 1: Fetch and display main data first
-      const resMain = await axios.get(`/api/list_1?keyword_give=${encodeURIComponent(searchKeyword)}&part=main`);
-      const mainData = resMain.data;
+      const mainPromise = axios.get(`/api/list_1?keyword_give=${encodeURIComponent(searchKeyword)}&part=main`);
+      const tabsPromise = axios.get(`/api/list_1?keyword_give=${encodeURIComponent(searchKeyword)}&part=tabs`);
+      const datalabPromise = axios.get(`/api/list_1?keyword_give=${encodeURIComponent(searchKeyword)}&part=datalab`);
+      const autoKeywordsPromise = axios.get(`/api/list_4?keyword_give=${encodeURIComponent(searchKeyword)}`);
+      
+      const [mainRes, tabsRes, datalabRes, autoKeywordsRes] = await Promise.all([
+        mainPromise,
+        tabsPromise,
+        datalabPromise,
+        autoKeywordsPromise,
+      ]);
 
+      // Process main data
+      const mainData = mainRes.data;
       if (mainData.error) throw new Error(mainData.error);
-
       const { keyword_amount, keyword_amount_10, docs_amount, blog_pc_10 } = mainData;
       
       const monthlyPcQcCnt = parseSearchCount(keyword_amount.monthlyPcQcCnt || '0');
@@ -70,17 +79,6 @@ export default function KeywordAnalyzer() {
         })
       );
       setBlogRows(blog_pc_10 || []);
-
-      // Step 2: Fetch secondary data in parallel now that main data is displayed
-      const tabsPromise = axios.get(`/api/list_1?keyword_give=${encodeURIComponent(searchKeyword)}&part=tabs`);
-      const datalabPromise = axios.get(`/api/list_1?keyword_give=${encodeURIComponent(searchKeyword)}&part=datalab`);
-      const autoKeywordsPromise = axios.get(`/api/list_4?keyword_give=${encodeURIComponent(searchKeyword)}`);
-      
-      const [tabsRes, datalabRes, autoKeywordsRes] = await Promise.all([
-        tabsPromise,
-        datalabPromise,
-        autoKeywordsPromise
-      ]);
 
       // Process and set tabs data
       if (tabsRes.data) {
