@@ -25,20 +25,22 @@ const getSearchUrl = (platform: string, keyword: string) => {
 const KeywordList = ({ title, keywords, isLoading }: { title: string; keywords: string[]; isLoading: boolean; }) => (
   <div className="keyword-card">
     <h2 className="card-title">{title}</h2>
-    <div className="keyword-list">
+    <ul className="keyword-list">
       {isLoading
-        ? Array.from({ length: 10 }).map((_, i) => <div key={i} className="skeleton-item" />)
+        ? Array.from({ length: 10 }).map((_, i) => <li key={i} className="skeleton-item" />)
         : keywords.length > 0
           ? keywords.map((kw, i) => (
-              <a key={kw + i} href={getSearchUrl(title, kw)} target="_blank" rel="noopener noreferrer" className="keyword-item">
-                <span className="rank">{i + 1}</span>
-                <span className="keyword-text">{kw}</span>
-                <span className="link-icon"><FaExternalLinkAlt /></span>
-              </a>
+              <li key={i}>
+                <a href={getSearchUrl(title, kw)} target="_blank" rel="noopener noreferrer">
+                  <span className="rank">{i + 1}.</span>
+                  <span className="keyword-text">{kw}</span>
+                  <span className="link-icon"><FaExternalLinkAlt /></span>
+                </a>
+              </li>
             ))
-          : <div className="no-data">데이터를 불러올 수 없습니다.</div>
+          : <li className="no-data">데이터를 불러올 수 없습니다.</li>
       }
-    </div>
+    </ul>
   </div>
 );
 
@@ -134,10 +136,11 @@ export default function RealtimeKeywords() {
           color: #343a40;
         }
         .keyword-list {
+          list-style: none;
           padding: 0;
           margin: 0;
         }
-        .keyword-item {
+        .keyword-list li a {
           display: flex;
           align-items: center;
           padding: 0.8rem 0.5rem;
@@ -146,10 +149,10 @@ export default function RealtimeKeywords() {
           transition: background-color 0.2s ease, color 0.2s ease;
           color: inherit;
         }
-        .keyword-item:hover {
+        .keyword-list li a:hover {
           background-color: #eef5ff;
         }
-        .keyword-item:hover .keyword-text {
+        .keyword-list li a:hover .keyword-text {
           color: #3182f6;
           font-weight: 600;
         }
@@ -158,7 +161,7 @@ export default function RealtimeKeywords() {
           font-style: italic;
           color: #868e96;
           width: 2.5rem;
-          text-align: center;
+          text-align: left;
           font-size: 1rem;
         }
         .keyword-text {
@@ -174,7 +177,7 @@ export default function RealtimeKeywords() {
           opacity: 0;
           transition: all 0.2s ease;
         }
-        .keyword-item:hover .link-icon {
+        .keyword-list li a:hover .link-icon {
           opacity: 1;
           color: #3182f6;
         }

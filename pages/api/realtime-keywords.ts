@@ -5,8 +5,9 @@ import iconv from 'iconv-lite';
 import googleTrends from 'google-trends-api';
 
 const cleanKeyword = (keyword: string) => {
-  // Removes leading digits from the keyword string (e.g., "1미 이란" -> "미 이란")
-  return keyword.replace(/^\d+/, '').trim();
+  // Removes leading digits and any non-letter/number characters at the start.
+  // This handles cases like "1. 키워드", "1키워드", "1.1위 키워드"
+  return keyword.replace(/^\d+\.?\s*/, '').trim();
 };
 
 async function getNateKeywords() {
@@ -16,7 +17,6 @@ async function getNateKeywords() {
     const { data } = await axios.get(url, { responseType: 'arraybuffer' });
     const decodedData = iconv.decode(data, 'EUC-KR');
     const keywordList = JSON.parse(decodedData);
-    // Apply cleaning to Nate keywords as well
     return keywordList.map((item: [string, string]) => cleanKeyword(item[1])).slice(0, 10);
   } catch (error) {
     console.error('Error fetching Nate keywords:', error);
@@ -30,9 +30,11 @@ async function getZumKeywords() {
     const { data } = await axios.get(url);
     const $ = cheerio.load(data);
     const keywords: string[] = [];
-    // Reverted to the correct selector and apply cleaning
     $('div.list_wrap.animate span.keyword').each((_, el) => {
-      keywords.push(cleanKeyword($(el).text().trim()));
+      const rawText = $(el).text().trim();
+      // Zum keywords are like "1키워드", so we remove the leading digits.
+      const cleanedKeyword = rawText.replace(/^\d+/, '').trim();
+      keywords.push(cleanedKeyword);
     });
     return keywords.slice(0, 10);
   } catch (error) {
@@ -43,7 +45,7 @@ async function getZumKeywords() {
 
 async function getGoogleKeywords() {
   try {
-    const response = await googleTrends.dailyTrends({ geo: 'KR', hl: 'ko-KR' });
+    const response = await googleTrends.dailyTrends({ geo: 'KR', hl: 'ko' });
     const trends = JSON.parse(response);
     return trends.default.trendingSearchesDays[0].trendingSearches.map((t: any) => t.title.query).slice(0, 10);
   } catch (err) {
