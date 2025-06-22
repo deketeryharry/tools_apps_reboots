@@ -93,7 +93,7 @@ export default function RealtimeKeywords() {
             title="줌" 
             keywords={keywords?.zum || []} 
             isLoading={isLoading}
-            logo="https://static.zum.com/static/images/logo_2x.png"
+            logo="https://raw.githubusercontent.com/deketeryharry/tools_apps_reboots/main/public/zum-logo-2021.png"
           />
           <KeywordList 
             title="구글 트렌드" 
@@ -156,6 +156,7 @@ export default function RealtimeKeywords() {
         .card-title img {
           height: 20px;
           margin-right: 12px;
+          object-fit: contain;
         }
         .keyword-list {
           list-style: none;

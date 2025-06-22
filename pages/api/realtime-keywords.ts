@@ -4,6 +4,10 @@ import * as cheerio from 'cheerio';
 import iconv from 'iconv-lite';
 import googleTrends from 'google-trends-api';
 
+const cleanKeyword = (keyword: string) => {
+  return keyword.replace(/^\d+\.?\s*/, '');
+};
+
 async function getNateKeywords() {
   try {
     const now = new Date().toISOString().replace(/[-:.]/g, '').slice(0, 12);
@@ -11,7 +15,7 @@ async function getNateKeywords() {
     const { data } = await axios.get(url, { responseType: 'arraybuffer' });
     const decodedData = iconv.decode(data, 'EUC-KR');
     const keywordList = JSON.parse(decodedData);
-    return keywordList.map((item: [string, string]) => item[1]).slice(0, 10);
+    return keywordList.map((item: [string, string]) => cleanKeyword(item[1])).slice(0, 10);
   } catch (error) {
     console.error('Error fetching Nate keywords:', error);
     return [];
@@ -24,8 +28,8 @@ async function getZumKeywords() {
     const { data } = await axios.get(url);
     const $ = cheerio.load(data);
     const keywords: string[] = [];
-    $('div.list_wrap.animate span.keyword').each((_, el) => {
-      keywords.push($(el).text().trim());
+    $('div.list_wrap.animate span.keyword .txt').each((_, el) => {
+      keywords.push(cleanKeyword($(el).text().trim()));
     });
     return keywords.slice(0, 10);
   } catch (error) {
@@ -35,14 +39,18 @@ async function getZumKeywords() {
 }
 
 async function getGoogleKeywords() {
-  try {
-    const results = await googleTrends.dailyTrends({ geo: 'KR' });
-    const trends = JSON.parse(results).default.trendingSearchesDays[0].trendingSearches;
-    return trends.map((trend: any) => trend.title.query).slice(0, 10);
-  } catch (error) {
-    console.error('Error fetching Google keywords:', error);
-    return [];
-  }
+  return new Promise((resolve) => {
+    setTimeout(async () => {
+      try {
+        const results = await googleTrends.dailyTrends({ geo: 'KR' });
+        const trends = JSON.parse(results).default.trendingSearchesDays[0].trendingSearches;
+        resolve(trends.map((trend: any) => trend.title.query).slice(0, 10));
+      } catch (error) {
+        console.error('Error fetching Google keywords:', error);
+        resolve([]);
+      }
+    }, 500); // 500ms delay
+  });
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
