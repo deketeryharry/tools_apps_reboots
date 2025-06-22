@@ -27,16 +27,6 @@
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/news-analyzer": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/news-analyzer.js"
-    ],
-    "/random-selector": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/random-selector.js"
-    ],
     "/realtime-keywords": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",

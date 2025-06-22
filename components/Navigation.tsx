@@ -3,13 +3,13 @@ import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 
 const navLinks = [
+  { name: '실시간 검색어', href: '/realtime-keywords' },
+  { name: '키워드 분석기', href: '/keyword-analyzer' },
   { name: '당첨자 추출기', href: '/random-selector' },
   { name: '글자수세기', href: '/word-counter' },
   { name: '로또 추첨기', href: '/lotto-generator' },
-  { name: '키워드 분석기', href: '/keyword-analyzer' },
-  { name: '연봉 계산기', href: '/salary-calculator' },
   { name: '뉴스 분석기', href: '/news-analyzer' },
-  { name: '실시간 검색어', href: '/realtime-keywords' },
+  { name: '연봉 계산기', href: '/salary-calculator' },
 ];
 
 export default function Navigation() {
