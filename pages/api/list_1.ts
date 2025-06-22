@@ -14,16 +14,25 @@ async function getNaverSearchData(keyword: string) {
 }
 
 async function getRelKeywords(keyword: string) {
+  const adApiKey = process.env.NAVER_AD_API_KEY;
+  const adSecretKey = process.env.NAVER_AD_SECRET_KEY;
+  const adCustomerId = process.env.NAVER_AD_CUSTOMER_ID;
+
+  if (!adApiKey || !adSecretKey || !adCustomerId) {
+    console.error('Naver Ad API environment variables are not set on Vercel. Returning empty search volume.');
+    return [];
+  }
+
   const url = 'https://api.naver.com/keywordstool';
   const timestamp = new Date().getTime().toString();
-  const hmac = createHmac('sha256', process.env.NAVER_AD_SECRET_KEY!)
+  const hmac = createHmac('sha256', adSecretKey)
     .update(`${timestamp}.GET./keywordstool`)
     .digest('base64');
   
   const headers = {
     'X-Timestamp': timestamp,
-    'X-API-KEY': process.env.NAVER_AD_API_KEY!,
-    'X-Customer': process.env.NAVER_AD_CUSTOMER_ID!,
+    'X-API-KEY': adApiKey,
+    'X-Customer': adCustomerId,
     'X-Signature': hmac,
     'Content-Type': 'application/json'
   };
@@ -41,8 +50,12 @@ async function getRelKeywords(keyword: string) {
       }
     });
     return response.data.keywordList || [];
-  } catch(e) {
-    console.error('Error fetching related keywords:', e);
+  } catch(e: any) {
+    if (e.response) {
+      console.error('Error fetching related keywords from Naver Ads API:', e.response.data);
+    } else {
+      console.error('Error fetching related keywords:', e.message);
+    }
     return [];
   }
 }
