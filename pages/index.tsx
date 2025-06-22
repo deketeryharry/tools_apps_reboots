@@ -3,11 +3,12 @@ import Head from 'next/head'
 import Link from 'next/link'
 
 const tools = [
-  { name: '랜덤 선택기', href: '/random-picker' },
-  { name: '문자 수 세기', href: '/character-counter' },
-  { name: '로또 추첨기', href: '/lotto-generator' },
+  { name: '당첨자 추출기', href: '/random-selector' },
+  { name: '글자수세기', href: '/word-counter' },
+  { name: '로또 추첨기', href: '/lotto' },
   { name: '키워드 분석기', href: '/keyword-analyzer' },
   { name: '연봉 계산기', href: '/salary-calculator' },
+  { name: '뉴스 분석기', href: '/news-analyzer' },
 ]
 
 const Home: NextPage = () => {

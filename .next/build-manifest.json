@@ -27,20 +27,10 @@
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/keyword-analyzer": [
+    "/news-analyzer": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/keyword-analyzer.js"
-    ],
-    "/random-selector": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/random-selector.js"
-    ],
-    "/word-counter": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/word-counter.js"
+      "static/chunks/pages/news-analyzer.js"
     ]
   },
   "ampFirstPages": []

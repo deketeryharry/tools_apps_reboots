@@ -36,6 +36,8 @@ export default function Navigation() {
           align-items: center;
           gap: 8px;
           overflow-x: auto;
+          flex-shrink: 1;
+          min-width: 0;
           -ms-overflow-style: none; /* IE and Edge */
           scrollbar-width: none; /* Firefox */
         }
