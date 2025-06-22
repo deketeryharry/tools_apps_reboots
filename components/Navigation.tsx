@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 const navLinks = [
-  { name: '홈', href: '/' },
   { name: '당첨자 추출기', href: '/random-selector' },
   { name: '글자수세기', href: '/word-counter' },
   { name: '로또 추첨기', href: '/lotto-generator' },
@@ -73,7 +72,9 @@ export default function Navigation() {
         boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
       }}>
         <div className="nav-container">
-          <span className="nav-title">해리의 UtilityTools</span>
+          <Link href="/" style={{ textDecoration: 'none' }}>
+            <span className="nav-title">해리의 UtilityTools</span>
+          </Link>
           <div className="nav-links">
             {navLinks.map(item => (
               <Link
