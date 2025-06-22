@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { createHmac } from 'crypto';
 import axios from 'axios';
+import { getNaverAdSignature } from '../../utils/naverApi';
+import { RelKeyword } from '../../types/naver';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { keyword_give: keyword } = req.query;
@@ -13,11 +14,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const secretKey = process.env.NAVER_AD_SECRET_KEY!;
   const customerId = process.env.NAVER_AD_CUSTOMER_ID!;
   const timestamp = Date.now().toString();
-  const method = 'GET';
   const uri = '/keywordstool';
-  const signature = createHmac('sha256', secretKey)
-    .update(`${timestamp}.${method}.${uri}`)
-    .digest('base64');
+  const signature = getNaverAdSignature(timestamp, 'GET', uri, secretKey);
   
   const keywordForHint = keyword.replace(/\s/g, '');
 
@@ -32,7 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       params: { hintKeywords: keywordForHint, showDetail: 1 },
     });
 
-    const keywords = response.data.keywordList.map((item: any) => item.relKeyword);
+    const keywords = (response.data.keywordList || []).map((item: RelKeyword) => item.relKeyword);
     res.status(200).json({ auto_keyword: keywords });
   } catch (error: any) {
     console.error('Error fetching related keywords:', error.response?.data || error.message);

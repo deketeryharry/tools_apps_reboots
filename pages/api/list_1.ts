@@ -1,7 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import { createHmac } from 'crypto';
+import { getNaverAdSignature } from '../../utils/naverApi';
+import { RelKeyword } from '../../types/naver';
 
 async function getNaverSearchData(keyword: string) {
   const url = `https://openapi.naver.com/v1/search/blog.json?query=${encodeURIComponent(keyword)}&display=10`;
@@ -25,9 +26,8 @@ async function getRelKeywords(keyword: string) {
 
   const url = 'https://api.naver.com/keywordstool';
   const timestamp = new Date().getTime().toString();
-  const hmac = createHmac('sha256', adSecretKey)
-    .update(`${timestamp}.GET./keywordstool`)
-    .digest('base64');
+  const uri = '/keywordstool';
+  const hmac = getNaverAdSignature(timestamp, 'GET', uri, adSecretKey);
   
   const headers = {
     'X-Timestamp': timestamp,
@@ -123,7 +123,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         getRelKeywords(keywordForRel).catch(e => { console.error("Error in getRelKeywords:", e.message); return []; }),
       ]);
       
-      const keywordAmount = (relKeywords?.find((k: any) => k.relKeyword === keywordForRel) || {});
+      const keywordAmount = (relKeywords?.find((k: RelKeyword) => k.relKeyword === keywordForRel) || {});
       const processedBlogData = naverSearchData?.items.map((blog: any) => {
         const link = blog.link;
         const blogType = link.includes('naver.com') ? 'N' :

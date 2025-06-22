@@ -2,11 +2,7 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/": "pages/index.js",
-  "/word-counter": "pages/word-counter.js",
   "/news-analyzer": "pages/news-analyzer.js",
-  "/keyword-analyzer": "pages/keyword-analyzer.js",
-  "/random-selector": "pages/random-selector.js",
-  "/salary-calculator": "pages/salary-calculator.js",
-  "/lotto-generator": "pages/lotto-generator.js"
+  "/lotto-generator": "pages/lotto-generator.js",
+  "/": "pages/index.js"
 }

@@ -72,18 +72,16 @@ export default function KeywordAnalyzer() {
         { relKeyword: keywordNoSpace, monthlyPcQcCnt, monthlyMobileQcCnt, monthlySumQcCnt, totalDoc, blogPcType },
         ...prev
       ]);
-      setKeyword10Rows(
-        (keyword_amount_10 || []).slice(0, 10).map((row: any) => {
-          const pcCount = parseSearchCount(row.monthlyPcQcCnt || '0');
-          const mobileCount = parseSearchCount(row.monthlyMobileQcCnt || '0');
-          return {
-            relKeyword: row.relKeyword,
-            monthlyPcQcCnt: pcCount,
-            monthlyMobileQcCnt: mobileCount,
-            monthlySumQcCnt: pcCount + mobileCount,
-          };
-        })
-      );
+      setKeyword10Rows((keyword_amount_10 || []).slice(0, 10).map((row: any) => {
+        const pcCount = parseSearchCount(row.monthlyPcQcCnt || '0');
+        const mobileCount = parseSearchCount(row.monthlyMobileQcCnt || '0');
+        return { 
+          ...row, 
+          monthlyPcQcCnt: pcCount, 
+          monthlyMobileQcCnt: mobileCount, 
+          monthlySumQcCnt: pcCount + mobileCount 
+        };
+      }));
       setBlogRows(blog_pc_10 || []);
 
       // Process and set tabs data

@@ -22,40 +22,40 @@ const Home: NextPage = () => {
 
       <main>
         <h1 style={{ textAlign: 'center', marginBottom: '40px' }}>Tools</h1>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-          gap: '20px',
-        }}>
+        <div className="tools-grid">
           {tools.map((tool) => (
             <Link
               key={tool.name}
               href={tool.href}
-              style={{
-                display: 'block',
-                padding: '20px',
-                border: '1px solid #e5e8eb',
-                borderRadius: '8px',
-                textAlign: 'center',
-                textDecoration: 'none',
-                color: 'inherit',
-                transition: 'transform 0.2s, box-shadow 0.2s',
-                boxShadow: '0 2px 12px rgba(49,130,246,0.06)',
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.transform = 'translateY(-5px)';
-                e.currentTarget.style.boxShadow = '0 8px 20px rgba(49,130,246,0.12)';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 2px 12px rgba(49,130,246,0.06)';
-              }}
+              className="tool-card"
             >
               <h2 style={{ fontSize: '1.25rem', marginBottom: '10px' }}>{tool.name}</h2>
             </Link>
           ))}
         </div>
       </main>
+      <style jsx>{`
+        .tools-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+          gap: 20px;
+        }
+        .tool-card {
+          display: block;
+          padding: 20px;
+          border: 1px solid #e5e8eb;
+          border-radius: 8px;
+          text-align: center;
+          text-decoration: none;
+          color: inherit;
+          transition: transform 0.2s, box-shadow 0.2s;
+          box-shadow: 0 2px 12px rgba(49,130,246,0.06);
+        }
+        .tool-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 8px 20px rgba(49,130,246,0.12);
+        }
+      `}</style>
     </div>
   )
 }
