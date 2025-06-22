@@ -117,12 +117,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     if (part === 'main') {
+      const keywordForRel = keyword.replace(/\s/g, '');
       const [naverSearchData, relKeywords] = await Promise.all([
         getNaverSearchData(keyword).catch(e => { console.error("Error in getNaverSearchData:", e.message); return null; }),
-        getRelKeywords(keyword).catch(e => { console.error("Error in getRelKeywords:", e.message); return []; }),
+        getRelKeywords(keywordForRel).catch(e => { console.error("Error in getRelKeywords:", e.message); return []; }),
       ]);
       
-      const keywordAmount = (relKeywords?.find((k: any) => k.relKeyword === keyword.replace(/\s/g, '')) || {});
+      const keywordAmount = (relKeywords?.find((k: any) => k.relKeyword === keywordForRel) || {});
       const processedBlogData = naverSearchData?.items.map((blog: any) => {
         const link = blog.link;
         const blogType = link.includes('naver.com') ? 'N' :
