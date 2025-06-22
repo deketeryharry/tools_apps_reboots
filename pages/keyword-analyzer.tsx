@@ -1,5 +1,12 @@
 import { useState } from 'react';
 import axios from 'axios';
+import ResultTable from '../components/keyword-analyzer/ResultTable';
+import RelatedKeywordsTable from '../components/keyword-analyzer/RelatedKeywordsTable';
+import TopBlogsTable from '../components/keyword-analyzer/TopBlogsTable';
+import TabOrderTable from '../components/keyword-analyzer/TabOrderTable';
+import DailyTrendChart from '../components/keyword-analyzer/DailyTrendChart';
+import AutoKeywordsList from '../components/keyword-analyzer/AutoKeywordsList';
+import LoadingPopup from '../components/keyword-analyzer/LoadingPopup';
 
 function parseSearchCount(value: string | number): number {
   if (typeof value === 'string' && value.trim().startsWith('<')) {
@@ -29,10 +36,11 @@ export default function KeywordAnalyzer() {
       return;
     }
 
-    // Reset states
+    // Reset states for new analysis
     setError(null);
     setIsLoading(true);
     setProgress(0);
+    // Only reset data for the new keyword, not the main results table
     setTabOrderRows([]);
     setRatioRows([]);
     setAutoKeywords([]);
@@ -70,8 +78,9 @@ export default function KeywordAnalyzer() {
 
       setKeywordRows(prev => [
         { relKeyword: keywordNoSpace, monthlyPcQcCnt, monthlyMobileQcCnt, monthlySumQcCnt, totalDoc, blogPcType },
-        ...prev
-      ]);
+        ...prev.filter(row => row.relKeyword !== keywordNoSpace)
+      ].slice(0, 10)); // Keep max 10 rows
+
       setKeyword10Rows((keyword_amount_10 || []).slice(0, 10).map((row: any) => {
         const pcCount = parseSearchCount(row.monthlyPcQcCnt || '0');
         const mobileCount = parseSearchCount(row.monthlyMobileQcCnt || '0');
@@ -149,84 +158,10 @@ export default function KeywordAnalyzer() {
     setKeywordRows(rows => rows.filter((_, i) => i !== idx));
   };
 
-  const tableStyle = {
-    width: '100%',
-    borderCollapse: 'separate' as const,
-    borderSpacing: 0,
-    background: '#fff',
-    borderRadius: 12,
-    overflow: 'hidden',
-    boxShadow: '0 2px 12px rgba(49,130,246,0.06)',
-    marginBottom: 12,
-    fontSize: 13,
-  };
-  const thStyle = {
-    background: '#222',
-    color: '#fff',
-    fontWeight: 700,
-    padding: '7px 6px',
-    borderBottom: '2px solid #e5e8eb',
-    textAlign: 'center' as const,
-    fontSize: 13,
-  };
-  const tdStyle = {
-    padding: '6px 6px',
-    textAlign: 'center' as const,
-    borderBottom: '1px solid #e5e8eb',
-    background: '#fff',
-    fontSize: '12px',
-  };
-  const trHover = {
-    transition: 'background 0.15s',
-    height: 32,
-  };
-
-  const modalBackdropStyle: React.CSSProperties = {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    background: 'rgba(0, 0, 0, 0.6)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000,
-  };
-
-  const modalContentStyle: React.CSSProperties = {
-    background: 'white',
-    padding: '30px 50px',
-    borderRadius: '12px',
-    textAlign: 'center',
-    color: '#333',
-    boxShadow: '0 5px 25px rgba(0, 0, 0, 0.2)',
-  };
-
-  const progressBarStyle: React.CSSProperties = {
-    width: '280px',
-    height: '10px',
-    background: '#e9ecef',
-    borderRadius: '5px',
-    overflow: 'hidden',
-    marginTop: '12px',
-  };
-
-  const progressBarFillStyle = (progress: number): React.CSSProperties => ({
-    width: `${progress}%`,
-    height: '100%',
-    background: 'linear-gradient(90deg, #03c75a, #3182f6)',
-    borderRadius: '5px',
-    transition: 'width 0.3s ease-in-out',
-  });
-
-  function getGaugeColor(percent: number) {
-    if (percent < 0.6) return '#ef4444'; 
-    if (percent < 0.85) return '#facc15'; 
-    return '#22c55e';
+  const handleKeywordClick = (kw: string) => {
+    setKeyword(kw);
+    handleAnalyze(kw);
   }
-
-  const maxRatio = ratioRows.length > 0 ? Math.max(...ratioRows.map((row: any) => row.ratio)) : 1;
 
   return (
     <>
@@ -240,12 +175,6 @@ export default function KeywordAnalyzer() {
         }
         .right-column {
           flex: 1;
-          background: var(--background);
-          border-radius: 12px;
-          box-shadow: 0 2px 12px rgba(49, 130, 246, 0.06);
-          padding: 16px 10px 10px 10px;
-          margin-bottom: 18px;
-          color: var(--foreground);
         }
         @media (max-width: 900px) {
           .container {
@@ -254,18 +183,8 @@ export default function KeywordAnalyzer() {
         }
       `}</style>
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 20px 60px 20px', fontSize: 14, color: 'var(--foreground)', background: 'var(--background)', fontFamily: 'inherit' }}>
-        {isLoading && (
-          <div style={modalBackdropStyle}>
-            <div style={modalContentStyle}>
-              <h3 style={{ margin: '0 0 8px 0', fontSize: '1.25rem', fontWeight: 700 }}>조회중...</h3>
-              <p style={{ margin: 0, color: '#666', fontSize: '0.9rem' }}>데이터를 수집하고 있습니다. 잠시만 기다려주세요.</p>
-              <div style={progressBarStyle}>
-                <div style={progressBarFillStyle(progress)}></div>
-              </div>
-              <p style={{ margin: '12px 0 0', fontSize: '1rem', fontWeight: 'bold', color: '#3182f6' }}>{progress}%</p>
-            </div>
-          </div>
-        )}
+        {isLoading && <LoadingPopup progress={progress} />}
+        
         <div className="container">
           <div className="left-column">
             <h1 style={{ color: 'var(--foreground)' }}>키워드 분석기</h1>
@@ -282,166 +201,20 @@ export default function KeywordAnalyzer() {
               </button>
             </div>
             {error && <div style={{ color: '#ff5a5a', background: 'var(--background)', border: '1px solid #ffbdbd', borderRadius: 8, padding: '8px 12px', marginBottom: 12, fontSize: 13 }}>{error}</div>}
-            <table style={tableStyle}>
-              <thead>
-                <tr>
-                  <th style={{ ...thStyle, width: '5%' }}>-</th>
-                  <th style={{ ...thStyle, width: '18%' }}>키워드</th>
-                  <th style={{ ...thStyle, width: '10%' }}>PC</th>
-                  <th style={{ ...thStyle, width: '10%' }}>MO</th>
-                  <th style={{ ...thStyle, width: '12%' }}>SUM</th>
-                  <th style={{ ...thStyle, width: '15%' }}>DOC</th>
-                  <th style={{ ...thStyle, width: '15%' }}>PC top10</th>
-                </tr>
-              </thead>
-              <tbody>
-                {keywordRows.map((row, idx) => (
-                  <tr key={idx} style={trHover} onMouseOver={e => (e.currentTarget.style.background = '#f4f6fa')} onMouseOut={e => (e.currentTarget.style.background = '#fff')}>
-                    <td style={tdStyle}>
-                      <button style={{ background: '#fff', color: '#ff5a5a', border: '1.5px solid #ff5a5a', borderRadius: 6, fontSize: 12, padding: '2px 8px', cursor: 'pointer' }} onClick={() => handleDeleteRow(idx)}>
-                        X
-                      </button>
-                    </td>
-                    <td style={tdStyle}>{row.relKeyword || keyword.replace(/\s/g, '')}</td>
-                    <td style={tdStyle}>{Number(row.monthlyPcQcCnt).toLocaleString()}</td>
-                    <td style={tdStyle}>{Number(row.monthlyMobileQcCnt).toLocaleString()}</td>
-                    <td style={tdStyle}>{(Number(row.monthlyPcQcCnt) + Number(row.monthlyMobileQcCnt)).toLocaleString()}</td>
-                    <td style={tdStyle}>{Number(row.totalDoc).toLocaleString()}</td>
-                    <td style={{ ...tdStyle, letterSpacing: 2 }}>{row.blogPcType.split('').map((c: string, i: number) => c === 'N' ? <span key={i} style={{ color: '#22c55e', fontWeight: 700 }}>N</span> : c)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <table style={tableStyle}>
-              <thead>
-                <tr>
-                  <th style={{ ...thStyle, width: '18%' }}>키워드</th>
-                  <th style={{ ...thStyle, width: '11%' }}>PC</th>
-                  <th style={{ ...thStyle, width: '11%' }}>MO</th>
-                  <th style={{ ...thStyle, width: '12%' }}>SUM</th>
-                </tr>
-              </thead>
-              <tbody>
-                {keyword10Rows.map((row, idx) => (
-                  <tr key={idx} style={trHover} onMouseOver={e => (e.currentTarget.style.background = '#f4f6fa')} onMouseOut={e => (e.currentTarget.style.background = '#fff')}>
-                    <td style={tdStyle}>
-                      <a
-                        href="#"
-                        onClick={e => {
-                          e.preventDefault();
-                          setKeyword(row.relKeyword);
-                          handleAnalyze(row.relKeyword);
-                        }}
-                      >
-                        {row.relKeyword}
-                      </a>
-                    </td>
-                    <td style={tdStyle}>{Number(row.monthlyPcQcCnt).toLocaleString()}</td>
-                    <td style={tdStyle}>{Number(row.monthlyMobileQcCnt).toLocaleString()}</td>
-                    <td style={tdStyle}>{(Number(row.monthlyPcQcCnt) + Number(row.monthlyMobileQcCnt)).toLocaleString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <table style={tableStyle}>
-              <thead>
-                <tr>
-                  <th style={thStyle} colSpan={4}>조회 키워드의 상위10 블로그</th>
-                </tr>
-                <tr>
-                  <th style={{ ...thStyle, width: '20%' }}>블로그명</th>
-                  <th style={{ ...thStyle, width: '8%' }}>출처</th>
-                  <th style={{ ...thStyle, width: '57%' }}>제목</th>
-                  <th style={{ ...thStyle, width: '15%' }}>발행일</th>
-                </tr>
-              </thead>
-              <tbody>
-                {blogRows.map((row, idx) => (
-                  <tr key={idx} style={trHover} onMouseOver={e => (e.currentTarget.style.background = '#f4f6fa')} onMouseOut={e => (e.currentTarget.style.background = '#fff')}>
-                    <td style={tdStyle}>
-                      <a href={row.블로그링크} target="_blank" rel="noopener noreferrer">
-                        {row.블로그이름}
-                      </a>
-                    </td>
-                    <td style={tdStyle}>{row.블로그타입}</td>
-                    <td style={{...tdStyle, textAlign: 'left'}}>{row.블로그제목}</td>
-                    <td style={{...tdStyle, whiteSpace: 'nowrap'}}>{row.발행날짜}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div>
-              <table style={tableStyle}>
-                <thead>
-                  <tr>
-                    <th style={{ ...thStyle, width: '50%' }}>PC 탭순서</th>
-                    <th style={{ ...thStyle, width: '50%' }}>MO 탭순서</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tabOrderRows.map((row, idx) => (
-                    <tr key={idx} style={trHover} onMouseOver={e => (e.currentTarget.style.background = '#f4f6fa')} onMouseOut={e => (e.currentTarget.style.background = '#fff')}>
-                      <td style={tdStyle}>{row.pc}</td>
-                      <td style={tdStyle}>{row.mo}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            
+            <ResultTable rows={keywordRows} onDelete={handleDeleteRow} />
+            <RelatedKeywordsTable keywords={keyword10Rows} onKeywordClick={handleKeywordClick} />
+            <TopBlogsTable blogs={blogRows} />
+            <TabOrderTable rows={tabOrderRows} />
+
           </div>
           <div className="right-column">
-            <h5 style={{ color: '#3182f6', fontSize: '1rem', fontWeight: 700, marginBottom: 10 }}>날짜 및 조회량</h5>
-            {ratioRows.length > 0 ? (
-              <table style={tableStyle}>
-                <thead>
-                  <tr>
-                    <th style={{ ...thStyle, width: '50%' }}>날짜</th>
-                    <th style={{ ...thStyle, width: '50%' }}>조회량 / 비율</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {ratioRows.map((row, idx) => {
-                    const percent = maxRatio > 0 ? row.ratio / maxRatio : 0;
-                    return (
-                      <tr key={idx} style={trHover} onMouseOver={e => (e.currentTarget.style.background = '#f4f6fa')} onMouseOut={e => (e.currentTarget.style.background = '#fff')}>
-                        <td style={tdStyle}>{row.period}</td>
-                        <td style={{ ...tdStyle, textAlign: 'left', whiteSpace: 'nowrap' }}>
-                          <span style={{ fontWeight: 600, marginRight: 8, display: 'inline-block', minWidth: '4ch', textAlign: 'right' }}>{row.dailyAmount.toLocaleString()}</span>
-                          <span style={{ display: 'inline-block', verticalAlign: 'middle', width: 80, height: 10, background: '#e5e8eb', borderRadius: 6, overflow: 'hidden', marginRight: 0 }}>
-                            <span style={{ display: 'block', height: '100%', width: `${Math.round(percent * 100)}%`, background: getGaugeColor(percent), borderRadius: 6, transition: 'width 0.2s' }} />
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            ) : (
-              <div style={{ color: '#8b95a1', fontSize: '0.98rem' }}>데이터 없음</div>
-            )}
+            <h5 style={{ color: '#3182f6', fontSize: '1rem', fontWeight: 700, marginBottom: 10, marginTop: 52 }}>날짜별/요일별 조회량</h5>
+            <DailyTrendChart rows={ratioRows} />
           </div>
           <div className="right-column">
-            <h5 style={{ color: '#3182f6', fontSize: '1rem', fontWeight: 700, marginBottom: 10 }}>관련 키워드</h5>
-            <table style={tableStyle}>
-              <tbody>
-                {autoKeywords.map((kw, idx) => (
-                  <tr key={idx} style={trHover} onMouseOver={e => (e.currentTarget.style.background = '#f4f6fa')} onMouseOut={e => (e.currentTarget.style.background = '#fff')}>
-                    <td style={tdStyle}>
-                      <a
-                        href="#"
-                        onClick={e => {
-                          e.preventDefault();
-                          setKeyword(kw);
-                          handleAnalyze(kw);
-                        }}
-                      >
-                        {kw}
-                      </a>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <h5 style={{ color: '#3182f6', fontSize: '1rem', fontWeight: 700, marginBottom: 10, marginTop: 52 }}>관련 키워드</h5>
+            <AutoKeywordsList keywords={autoKeywords} onKeywordClick={handleKeywordClick} />
           </div>
         </div>
       </div>

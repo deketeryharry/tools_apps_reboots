@@ -27,7 +27,7 @@ export default function AutoKeywordsList({ keywords, onKeywordClick }: Props) {
   }
   
   return (
-    <table style={{ ...tableStyle,  boxShadow: '0 2px 12px rgba(49,130,246,0.06)', borderRadius: 12, overflow: 'hidden' }}>
+    <table style={tableStyle}>
       <tbody>
         {keywords.map((kw, idx) => (
           <tr 

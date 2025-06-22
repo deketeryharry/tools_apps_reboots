@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useState, useEffect } from 'react';
 
 const navLinks = [
   { name: '당첨자 추출기', href: '/random-selector' },
@@ -12,6 +13,18 @@ const navLinks = [
 
 export default function Navigation() {
   const router = useRouter();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleRouteChange = () => {
+      setMenuOpen(false);
+    };
+    router.events.on('routeChangeComplete', handleRouteChange);
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange);
+    };
+  }, [router.events]);
+
   return (
     <>
       <style jsx>{`
@@ -29,33 +42,81 @@ export default function Navigation() {
           font-size: 20px;
           margin-right: 24px;
           color: #191f28;
+          white-space: nowrap;
         }
         .nav-links {
           display: flex;
           align-items: center;
           gap: 8px;
-          overflow-x: auto;
-          flex-shrink: 1;
-          min-width: 0;
-          -ms-overflow-style: none; /* IE and Edge */
-          scrollbar-width: none; /* Firefox */
         }
-        .nav-links::-webkit-scrollbar {
-          display: none; /* Chrome, Safari and Opera */
+        .desktop-links {
+          display: flex;
+        }
+        .hamburger-button {
+          display: none;
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 0;
+          z-index: 1001;
+        }
+        .hamburger-icon {
+          width: 24px;
+          height: 24px;
+          color: #191f28;
+        }
+        .mobile-menu {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.5);
+          display: flex;
+          justify-content: flex-end;
+          z-index: 1000;
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.3s ease;
+        }
+        .mobile-menu.open {
+          opacity: 1;
+          pointer-events: auto;
+        }
+        .mobile-nav {
+          background-color: white;
+          width: 250px;
+          height: 100%;
+          padding-top: 60px;
+          box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+          transform: translateX(100%);
+          transition: transform 0.3s ease;
+        }
+        .mobile-menu.open .mobile-nav {
+          transform: translateX(0);
+        }
+        .mobile-nav-links {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          padding: 0 24px;
+        }
+
+        @media (max-width: 900px) {
+          .desktop-links {
+            display: none;
+          }
+          .hamburger-button {
+            display: block;
+          }
+          .nav-container {
+            justify-content: space-between;
+          }
         }
         @media (max-width: 768px) {
           .nav-title {
             font-size: 18px;
             margin-right: 12px;
-            white-space: nowrap;
-          }
-          .nav-container {
-            gap: 0;
-          }
-        }
-        @media (max-width: 600px) {
-          .nav-title {
-            display: none;
           }
         }
       `}</style>
@@ -75,7 +136,7 @@ export default function Navigation() {
           <Link href="/" style={{ textDecoration: 'none' }}>
             <span className="nav-title">해리의 UtilityTools</span>
           </Link>
-          <div className="nav-links">
+          <div className="nav-links desktop-links">
             {navLinks.map(item => (
               <Link
                 key={item.href}
@@ -95,8 +156,36 @@ export default function Navigation() {
               </Link>
             ))}
           </div>
+          <button className="hamburger-button" onClick={() => setMenuOpen(!menuOpen)}>
+            <svg className="hamburger-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={menuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16m-7 6h7"}></path>
+            </svg>
+          </button>
         </div>
       </nav>
+      <div className={`mobile-menu ${menuOpen ? 'open' : ''}`} onClick={() => setMenuOpen(false)}>
+        <div className="mobile-nav" onClick={e => e.stopPropagation()}>
+          <div className="mobile-nav-links">
+            {navLinks.map(item => (
+              <Link
+                key={item.href}
+                href={item.href}
+                style={{
+                  padding: '12px 0',
+                  width: '100%',
+                  color: router.pathname === item.href ? '#3182f6' : '#191f28',
+                  fontWeight: router.pathname === item.href ? 700 : 500,
+                  textDecoration: 'none',
+                  transition: 'color 0.2s',
+                  fontSize: '1.1rem',
+                }}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
     </>
   );
 } 

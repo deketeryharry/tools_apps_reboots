@@ -2,7 +2,9 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
+  "/": "pages/index.js",
   "/news-analyzer": "pages/news-analyzer.js",
-  "/lotto-generator": "pages/lotto-generator.js",
-  "/": "pages/index.js"
+  "/keyword-analyzer": "pages/keyword-analyzer.js",
+  "/api/list_1": "pages/api/list_1.js",
+  "/api/list_4": "pages/api/list_4.js"
 }
