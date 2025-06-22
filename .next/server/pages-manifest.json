@@ -2,10 +2,10 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/realtime-keywords": "pages/realtime-keywords.js",
+  "/lotto-generator": "pages/lotto-generator.js",
   "/": "pages/index.js",
-  "/random-selector": "pages/random-selector.js",
+  "/realtime-keywords": "pages/realtime-keywords.js",
   "/api/realtime-keywords": "pages/api/realtime-keywords.js",
-  "/word-counter": "pages/word-counter.js",
-  "/lotto-generator": "pages/lotto-generator.js"
+  "/keyword-analyzer": "pages/keyword-analyzer.js",
+  "/random-selector": "pages/random-selector.js"
 }
