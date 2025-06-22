@@ -2,7 +2,7 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import Link from 'next/link'
 import {
-  FaCalculator, FaFont, FaGift, FaNewspaper, FaSearch, FaTachometerAlt, FaWonSign
+  FaCalculator, FaDice, FaFont, FaGift, FaNewspaper, FaSearch, FaTachometerAlt, FaWonSign
 } from 'react-icons/fa'
 
 const tools = [
@@ -34,7 +34,7 @@ const tools = [
     name: '로또 추첨기',
     href: '/lotto-generator',
     description: '로또 번호를 무작위로 생성하거나 직접 입력하여 관리합니다.',
-    icon: <img src="/lotto.svg" alt="로또 추첨기 icon" width={38} height={38} />,
+    icon: <FaDice />,
   },
   {
     name: '뉴스 분석기',

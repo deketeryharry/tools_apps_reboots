@@ -27,20 +27,15 @@
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/keyword-analyzer": [
+    "/lotto-generator": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/keyword-analyzer.js"
+      "static/chunks/pages/lotto-generator.js"
     ],
     "/random-selector": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
       "static/chunks/pages/random-selector.js"
-    ],
-    "/realtime-keywords": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/realtime-keywords.js"
     ]
   },
   "ampFirstPages": []
