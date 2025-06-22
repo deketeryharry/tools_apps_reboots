@@ -25,22 +25,20 @@ const getSearchUrl = (platform: string, keyword: string) => {
 const KeywordList = ({ title, keywords, isLoading }: { title: string; keywords: string[]; isLoading: boolean; }) => (
   <div className="keyword-card">
     <h2 className="card-title">{title}</h2>
-    <ol className="keyword-list">
+    <div className="keyword-list">
       {isLoading
-        ? Array.from({ length: 10 }).map((_, i) => <li key={i} className="skeleton-item" />)
+        ? Array.from({ length: 10 }).map((_, i) => <div key={i} className="skeleton-item" />)
         : keywords.length > 0
           ? keywords.map((kw, i) => (
-              <li key={i}>
-                <a href={getSearchUrl(title, kw)} target="_blank" rel="noopener noreferrer">
-                  <span className="rank">{i + 1}</span>
-                  <span className="keyword-text">{kw}</span>
-                  <span className="link-icon"><FaExternalLinkAlt /></span>
-                </a>
-              </li>
+              <a key={kw + i} href={getSearchUrl(title, kw)} target="_blank" rel="noopener noreferrer" className="keyword-item">
+                <span className="rank">{i + 1}</span>
+                <span className="keyword-text">{kw}</span>
+                <span className="link-icon"><FaExternalLinkAlt /></span>
+              </a>
             ))
-          : <li className="no-data">데이터를 불러올 수 없습니다.</li>
+          : <div className="no-data">데이터를 불러올 수 없습니다.</div>
       }
-    </ol>
+    </div>
   </div>
 );
 
@@ -136,22 +134,22 @@ export default function RealtimeKeywords() {
           color: #343a40;
         }
         .keyword-list {
-          list-style: none;
           padding: 0;
           margin: 0;
         }
-        .keyword-list li a {
+        .keyword-item {
           display: flex;
           align-items: center;
           padding: 0.8rem 0.5rem;
           border-radius: 8px;
           text-decoration: none;
           transition: background-color 0.2s ease, color 0.2s ease;
+          color: inherit;
         }
-        .keyword-list li a:hover {
+        .keyword-item:hover {
           background-color: #eef5ff;
         }
-        .keyword-list li a:hover .keyword-text {
+        .keyword-item:hover .keyword-text {
           color: #3182f6;
           font-weight: 600;
         }
@@ -176,7 +174,7 @@ export default function RealtimeKeywords() {
           opacity: 0;
           transition: all 0.2s ease;
         }
-        .keyword-list li a:hover .link-icon {
+        .keyword-item:hover .link-icon {
           opacity: 1;
           color: #3182f6;
         }

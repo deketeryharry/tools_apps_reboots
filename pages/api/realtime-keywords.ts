@@ -4,6 +4,11 @@ import * as cheerio from 'cheerio';
 import iconv from 'iconv-lite';
 import googleTrends from 'google-trends-api';
 
+const cleanKeyword = (keyword: string) => {
+  // Removes leading digits from the keyword string (e.g., "1미 이란" -> "미 이란")
+  return keyword.replace(/^\d+/, '').trim();
+};
+
 async function getNateKeywords() {
   try {
     const now = new Date().toISOString().replace(/[-:.]/g, '').slice(0, 12);
@@ -11,8 +16,8 @@ async function getNateKeywords() {
     const { data } = await axios.get(url, { responseType: 'arraybuffer' });
     const decodedData = iconv.decode(data, 'EUC-KR');
     const keywordList = JSON.parse(decodedData);
-    // Nate keywords are clean and don't need processing.
-    return keywordList.map((item: [string, string]) => item[1]).slice(0, 10);
+    // Apply cleaning to Nate keywords as well
+    return keywordList.map((item: [string, string]) => cleanKeyword(item[1])).slice(0, 10);
   } catch (error) {
     console.error('Error fetching Nate keywords:', error);
     return [];
@@ -25,13 +30,9 @@ async function getZumKeywords() {
     const { data } = await axios.get(url);
     const $ = cheerio.load(data);
     const keywords: string[] = [];
+    // Reverted to the correct selector and apply cleaning
     $('div.list_wrap.animate span.keyword').each((_, el) => {
-      // The text combines rank and keyword (e.g., "1키워드"). Remove leading digits.
-      const rawText = $(el).text().trim();
-      const cleanedKeyword = rawText.replace(/^\d+/, '').trim();
-      if (cleanedKeyword) {
-        keywords.push(cleanedKeyword);
-      }
+      keywords.push(cleanKeyword($(el).text().trim()));
     });
     return keywords.slice(0, 10);
   } catch (error) {
