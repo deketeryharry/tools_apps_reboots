@@ -46,8 +46,8 @@ export default function KeywordAnalyzer() {
 
       const { keyword_amount, keyword_amount_10, docs_amount, blog_pc_10 } = mainData;
       
-      const monthlyPcQcCnt = parseSearchCount(keyword_amount.monthlyPcQcCnt);
-      const monthlyMobileQcCnt = parseSearchCount(keyword_amount.monthlyMobileQcCnt);
+      const monthlyPcQcCnt = parseSearchCount(keyword_amount.monthlyPcQcCnt || '0');
+      const monthlyMobileQcCnt = parseSearchCount(keyword_amount.monthlyMobileQcCnt || '0');
       const monthlySumQcCnt = monthlyPcQcCnt + monthlyMobileQcCnt;
       const totalDoc = docs_amount.totaldoc;
       const blogPcType = (blog_pc_10 || []).map((b: any) => b.블로그타입).join('');
@@ -59,8 +59,8 @@ export default function KeywordAnalyzer() {
       ]);
       setKeyword10Rows(
         (keyword_amount_10 || []).map((row: any) => {
-          const pcCount = parseSearchCount(row.monthlyPcQcCnt);
-          const mobileCount = parseSearchCount(row.monthlyMobileQcCnt);
+          const pcCount = parseSearchCount(row.monthlyPcQcCnt || '0');
+          const mobileCount = parseSearchCount(row.monthlyMobileQcCnt || '0');
           return {
             relKeyword: row.relKeyword,
             monthlyPcQcCnt: pcCount,
