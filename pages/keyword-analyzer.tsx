@@ -58,7 +58,7 @@ export default function KeywordAnalyzer() {
         ...prev
       ]);
       setKeyword10Rows(
-        (keyword_amount_10 || []).map((row: any) => {
+        (keyword_amount_10 || []).slice(0, 10).map((row: any) => {
           const pcCount = parseSearchCount(row.monthlyPcQcCnt || '0');
           const mobileCount = parseSearchCount(row.monthlyMobileQcCnt || '0');
           return {
@@ -128,7 +128,8 @@ export default function KeywordAnalyzer() {
 
       // Process and set auto keywords
       if (autoKeywordsRes.data) {
-        setAutoKeywords((autoKeywordsRes.data.auto_keyword || []).map((k: any) => typeof k === 'string' ? k : String(k)));
+        const keywords = (autoKeywordsRes.data.auto_keyword || []).map((k: any) => typeof k === 'string' ? k : String(k));
+        setAutoKeywords(keywords.slice(0, 20));
       }
 
     } catch (err: any) {
