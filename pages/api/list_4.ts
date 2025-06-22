@@ -18,6 +18,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const signature = createHmac('sha256', secretKey)
     .update(`${timestamp}.${method}.${uri}`)
     .digest('base64');
+  
+  const keywordForHint = keyword.replace(/\s/g, '');
 
   try {
     const response = await axios.get(`https://api.naver.com${uri}`, {
@@ -27,7 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         'X-Customer': customerId,
         'X-Signature': signature,
       },
-      params: { hintKeywords: keyword, showDetail: 1 },
+      params: { hintKeywords: keywordForHint, showDetail: 1 },
     });
 
     const keywords = response.data.keywordList.map((item: any) => item.relKeyword);
