@@ -5,8 +5,8 @@ import iconv from 'iconv-lite';
 import googleTrends from 'google-trends-api';
 
 const cleanKeyword = (keyword: string) => {
-  // Matches patterns like "1. ", "2.", "3 " at the start of the string.
-  return keyword.replace(/^\d+\.?\s+/, '');
+  // Matches patterns like "1. " or "2." at the start, handles cases like "1.1위"
+  return keyword.replace(/^\d+\.\s*/, '');
 };
 
 async function getNateKeywords() {
@@ -29,8 +29,9 @@ async function getZumKeywords() {
     const { data } = await axios.get(url);
     const $ = cheerio.load(data);
     const keywords: string[] = [];
-    $('div.list_wrap.animate span.keyword').each((_, el) => {
-      keywords.push(cleanKeyword($(el).text().trim()));
+    // Use the specific selector for the keyword text to avoid including the rank number
+    $('a.keyword span.txt', 'div.list_wrap.animate').each((_, el) => {
+      keywords.push($(el).text().trim());
     });
     return keywords.slice(0, 10);
   } catch (error) {
@@ -41,7 +42,7 @@ async function getZumKeywords() {
 
 async function getGoogleKeywords() {
   try {
-    const response = await googleTrends.dailyTrends({ geo: 'KR' });
+    const response = await googleTrends.dailyTrends({ geo: 'KR', hl: 'ko-KR' });
     const trends = JSON.parse(response);
     return trends.default.trendingSearchesDays[0].trendingSearches.map((t: any) => t.title.query).slice(0, 10);
   } catch (err) {

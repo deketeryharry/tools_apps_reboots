@@ -26,23 +26,20 @@ const KeywordList = ({ title, keywords, isLoading }: { title: string; keywords: 
   <div className="keyword-card">
     <h2 className="card-title">{title}</h2>
     <ol className="keyword-list">
-      {isLoading ? (
-        Array.from({ length: 10 }).map((_, i) => (
-          <li key={i} className="skeleton-item" />
-        ))
-      ) : keywords.length > 0 ? (
-        keywords.map((kw, i) => (
-          <li key={i}>
-            <a href={getSearchUrl(title, kw)} target="_blank" rel="noopener noreferrer">
-              <span className="rank">{i + 1}</span>
-              <span className="keyword-text">{kw}</span>
-              <span className="link-icon"><FaExternalLinkAlt /></span>
-            </a>
-          </li>
-        ))
-      ) : (
-        <li className="no-data">데이터를 불러올 수 없습니다.</li>
-      )}
+      {isLoading
+        ? Array.from({ length: 10 }).map((_, i) => <li key={i} className="skeleton-item" />)
+        : keywords.length > 0
+          ? keywords.map((kw, i) => (
+              <li key={i}>
+                <a href={getSearchUrl(title, kw)} target="_blank" rel="noopener noreferrer">
+                  <span className="rank">{i + 1}</span>
+                  <span className="keyword-text">{kw}</span>
+                  <span className="link-icon"><FaExternalLinkAlt /></span>
+                </a>
+              </li>
+            ))
+          : <li className="no-data">데이터를 불러올 수 없습니다.</li>
+      }
     </ol>
   </div>
 );
@@ -54,18 +51,18 @@ export default function RealtimeKeywords() {
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchKeywords() {
+    const fetchKeywords = async () => {
+      setIsLoading(true);
       try {
-        setIsLoading(true);
         const { data } = await axios.get<Keywords>('/api/realtime-keywords');
         setKeywords(data);
-        setLastUpdated(new Date().toLocaleString('ko-KR', { hour12: false }));
+        setLastUpdated(new Date().toLocaleString('ko-KR', { hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }));
       } catch (error) {
         console.error('Failed to fetch keywords:', error);
       } finally {
         setIsLoading(false);
       }
-    }
+    };
     fetchKeywords();
   }, []);
 
@@ -79,38 +76,25 @@ export default function RealtimeKeywords() {
         <div className="title-section">
           <h1 className="main-title">실시간 검색어 순위</h1>
           <p className="subtitle">
-            Nate, Zum, Google의 실시간 트렌드를 확인해보세요.
-            {lastUpdated && <span className="timestamp"> (마지막 업데이트: {lastUpdated})</span>}
+            주요 포털의 실시간 트렌드를 확인해보세요.
+            {lastUpdated && <span className="timestamp">마지막 업데이트: {lastUpdated}</span>}
           </p>
         </div>
         <div className="grid-container">
-          <KeywordList 
-            title="네이트" 
-            keywords={keywords?.nate || []} 
-            isLoading={isLoading}
-          />
-          <KeywordList 
-            title="줌" 
-            keywords={keywords?.zum || []} 
-            isLoading={isLoading}
-          />
-          <KeywordList 
-            title="구글" 
-            keywords={keywords?.google || []} 
-            isLoading={isLoading}
-          />
+          <KeywordList title="네이트" keywords={keywords?.nate || []} isLoading={isLoading} />
+          <KeywordList title="줌" keywords={keywords?.zum || []} isLoading={isLoading} />
+          <KeywordList title="구글" keywords={keywords?.google || []} isLoading={isLoading} />
         </div>
       </div>
       <style jsx>{`
         .container {
-          max-width: 1200px;
-          margin: 0 auto;
           padding: 2rem 1.5rem 4rem;
           background-color: #f8f9fa;
         }
         .title-section {
+          max-width: 1200px;
+          margin: 0 auto 3.5rem;
           text-align: center;
-          margin-bottom: 3.5rem;
         }
         .main-title {
           font-size: 2.5rem;
@@ -126,18 +110,21 @@ export default function RealtimeKeywords() {
           font-size: 0.9rem;
           color: #868e96;
           display: block;
-          margin-top: 0.5rem;
+          margin-top: 0.75rem;
         }
         .grid-container {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
           gap: 2rem;
+          max-width: 1200px;
+          margin: 0 auto;
         }
         .keyword-card {
           background: #ffffff;
           border-radius: 12px;
           padding: 2rem;
           box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+          border: 1px solid #e9ecef;
         }
         .card-title {
           font-size: 1.5rem;
@@ -193,17 +180,21 @@ export default function RealtimeKeywords() {
           opacity: 1;
           color: #3182f6;
         }
-        .skeleton-item {
+        .skeleton-item, .no-data {
           height: 2.8rem;
-          background-color: #f1f3f5;
           border-radius: 8px;
           margin-bottom: 0.75rem;
+        }
+        .skeleton-item {
+          background-color: #f1f3f5;
           animation: skeleton-loading 1.5s infinite ease-in-out;
         }
         .no-data {
-          text-align: center;
+          display: flex;
+          justify-content: center;
+          align-items: center;
           color: #adb5bd;
-          padding: 3rem 0;
+          background-color: #f8f9fa;
         }
         @keyframes skeleton-loading {
           0% { background-color: #f1f3f5; }
